@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>TriLan C# Compiler</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/6132/6132222.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              body: ['"Inter"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              surface: 'var(--surface)',
+              'surface-tinted': 'var(--surface-tinted)',
+              'surface-highlight': 'var(--surface-highlight)',
+              background: 'var(--background)',
+              primary: 'var(--primary)',
+              'primary-fg': 'var(--primary-fg)',
+              secondary: 'var(--secondary)',
+              accent: 'var(--accent)',
+              border: 'var(--border)',
+              text: 'var(--text)',
+              'text-muted': 'var(--text-muted)',
+            },
+            animation: {
+              'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              'fade-in': 'fadeIn 0.2s ease-out',
+            },
+            keyframes: {
+              slideUp: {
+                '0%': { transform: 'translateY(100%)' },
+                '100%': { transform: 'translateY(0)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: var(--background);
+        color: var(--text);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        overscroll-behavior-y: none;
+      }
+      
+      /* Reduce Motion Accessibility */
+      body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--surface-highlight);
+        border-radius: 99px;
+        border: 1px solid var(--border);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@monaco-editor/react": "https://esm.sh/@monaco-editor/react@^4.7.0",
+    "jszip": "https://esm.sh/jszip@3.10.1",
+    "file-saver": "https://esm.sh/file-saver@2.0.5"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <!-- Entry point script fixed below -->
+    <script type="module" src="./index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('SW registered', reg))
+            .catch(err => console.log('SW registration failed', err));
+        });
+      }
+    </script>
+  </body>
+</html>
