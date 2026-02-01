@@ -1,40 +1,43 @@
-<p align="center">
-  <img src="https://eldrex.landecs.org/squad/trilan-logo.png" alt="TriLan Logo" width="140"/>
-</p>
+<p align="center">  
+  <img src="https://eldrex.landecs.org/squad/trilan-logo.png" alt="TriLan Logo" width="140"/>  
+</p>  
 
-<h1 align="center">TriLan C# (Beta)</h1>
+<h1 align="center">TriLan C# (Beta)</h1>  
 
-<p align="center">
-  An educational C# playground with a VS Code–like experience, optimized for learning, experimentation, and mobile use.
-</p>
+<p align="center">  
+  An educational C# playground with a VS Code–like experience, optimized for learning, experimentation, and mobile use.  
+</p>  
 
-<p align="center">
-  <a href="https://trilan-c.landecs.org">🌐 Main Web App</a>
-</p>
+<p align="center">  
+  <a href="https://trilan-c.landecs.org">🌐 Main Web App</a>  
+</p>  
 
-<p align="center">
-  <a href="https://www.landecs.org/docs/donation">
-    <img src="https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge" alt="Donate">
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
-  </a>
-</p>
+<p align="center">  
+  <a href="https://www.landecs.org/docs/donation">  
+    <img src="https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge" alt="Donate">  
+  </a>  
+  <a href="LICENSE">  
+    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">  
+  </a>  
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor">  
+    <img src="https://img.shields.io/badge/Report%20Bug-Feedback-orange?style=for-the-badge" alt="Report Bug or Feedback">  
+  </a>  
+</p>  
 
 ---
 
 ## Overview
 
-**TriLan C#** is a beta-stage, web-based C# environment that allows users to write, run, and test code with a modern, VS Code–like interface.  
+**TriLan C#** is a beta-stage, web-based C# environment that allows users to write, run, and test code with a modern, VS Code–like interface.    
 
-It is fully functional but still in **active development**, focusing on:
+It is fully functional but still in **active development**, focusing on:  
 
 - Clean editor with syntax highlighting and IntelliSense-like code suggestions  
 - Support for free APIs and libraries for learning and experimentation  
 - Customizable UI for themes, fonts, and layout preferences  
 - Optimized for desktop and mobile browsing  
 
-TriLan C# is ideal for students, educators, and developers looking for a simple yet powerful coding environment online.
+TriLan C# is ideal for students, educators, and developers looking for a simple yet powerful coding environment online.  
 
 ---
 
@@ -54,11 +57,9 @@ TriLan C# is ideal for students, educators, and developers looking for a simple 
 ### 1. Main Editor Interface
 
 **Description:**  
-This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-themed design optimized for learning and development. The layout is organized into three primary sections: Sidebar, Editor, and Console, giving users a full coding experience similar to VS Code.
+This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-themed design optimized for learning and development. The layout is organized into three primary sections: Sidebar, Editor, and Console, giving users a full coding experience similar to VS Code.  
 
-![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)
-
-
+![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)  
 
 ---
 
@@ -73,25 +74,26 @@ This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-the
 
 ## Supported Libraries & APIs
 
-TriLan C# uses **free and open-source libraries** for:
+TriLan C# uses **free and open-source libraries** for:  
 
 - Syntax highlighting  
 - Auto-completion and IntelliSense-like support  
 - Code parsing and compilation  
 - Mobile and desktop responsive UI  
 
-Exact list of libraries is documented in the project repo.
+Exact list of libraries is documented in the project repo.  
 
 ---
 
 ## Feedback & Contributions
 
-TriLan C# is actively seeking feedback:
+**Help us improve TriLan C# by sharing your feedback or reporting issues:**  
 
-- Report issues on GitHub  
-- Suggest UI or feature improvements via the web app    
+- Report bugs or errors here: [📝 TriLan C# Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor)  
+- Suggest UI or feature improvements via the web app  
+- Star and contribute on GitHub: [⭐ TriLan C# Repository](https://github.com/EldrexDelosReyesBula/TriLan-Csharp)  
 
-Your contributions help improve the learning experience and stability of the platform.
+Your contributions help improve the learning experience, stability, and features of the platform.  
 
 ---
 
@@ -99,9 +101,9 @@ Your contributions help improve the learning experience and stability of the pla
 
 Support development of **TriLan C#** and the **LanDecs ecosystem**:  
 
-[![Donate](https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge)](https://www.landecs.org/docs/donation)
+[![Donate](https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge)](https://www.landecs.org/docs/donation)  
 
-Donations help maintain servers, improve features, and expand learning resources.
+Donations help maintain servers, improve features, and expand learning resources.  
 
 ---
 
@@ -122,7 +124,7 @@ Donations help maintain servers, improve features, and expand learning resources
 
 TriLan C# is licensed under the **MIT License**, making it free to use, modify, and distribute.  
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)  
 
 ---
 
@@ -130,8 +132,8 @@ TriLan C# is licensed under the **MIT License**, making it free to use, modify, 
 
 🌐 Main Web App: [https://trilan-c.landecs.org](https://trilan-c.landecs.org)  
 
-🏢 Built by **LanDecs**
+🏢 Built by **LanDecs**  
 
-<p align="center">
-  <i>TriLan C# is designed for learning, experimentation, and a smooth coding experience on any device.</i>
+<p align="center">  
+  <i>TriLan C# is designed for learning, experimentation, and a smooth coding experience on any device.</i>  
 </p>
