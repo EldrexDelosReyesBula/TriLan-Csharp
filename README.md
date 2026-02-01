@@ -132,7 +132,7 @@ TriLan C# is licensed under the **MIT License**, making it free to use, modify, 
 
 🌐 Main Web App: [https://trilan-c.landecs.org](https://trilan-c.landecs.org)  
 
-🏢 Built by **LanDecs**  
+🏢 Built by **LanDecs Team**  
 
 <p align="center">  
   <i>TriLan C# is designed for learning, experimentation, and a smooth coding experience on any device.</i>  
