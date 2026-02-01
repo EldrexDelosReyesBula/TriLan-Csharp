@@ -85,8 +85,6 @@ TriLan C# uses **free and open-source libraries** for:
 - Code parsing and compilation  
 - Mobile and desktop responsive UI  
 
-Exact list of libraries is documented in the project repo.  
-
 ---
 
 ## Feedback & Contributions
