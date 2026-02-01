@@ -9,7 +9,8 @@
 </p>  
 
 <p align="center">  
-  <a href="https://trilan-c.landecs.org">🌐 Main Web App</a>  
+  <a href="https://trilan-c.landecs.org">🌐 Main Web App</a> |  
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor">📝 Report / Feedback</a>  
 </p>  
 
 <p align="center">  
@@ -19,8 +20,11 @@
   <a href="LICENSE">  
     <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">  
   </a>  
-  <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor">  
-    <img src="https://img.shields.io/badge/Report%20Bug-Feedback-orange?style=for-the-badge" alt="Report Bug or Feedback">  
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp">  
+    <img src="https://img.shields.io/badge/GitHub-TriLan%20C%23-black?style=for-the-badge" alt="GitHub Repo">  
+  </a>  
+  <a href="https://www.facebook.com/share/16Zpbt8Sfb/">  
+    <img src="https://eldrex.landecs.org/landecs.png" width="24" alt="LanDecs Logo"> Facebook  
   </a>  
 </p>  
 
@@ -89,9 +93,10 @@ Exact list of libraries is documented in the project repo.
 
 **Help us improve TriLan C# by sharing your feedback or reporting issues:**  
 
-- Report bugs or errors here: [📝 TriLan C# Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor)  
+- Report bugs or errors: [📝 TriLan C# Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor)  
 - Suggest UI or feature improvements via the web app  
 - Star and contribute on GitHub: [⭐ TriLan C# Repository](https://github.com/EldrexDelosReyesBula/TriLan-Csharp)  
+- Connect with us on **Facebook**: [📘 LanDecs Page](https://www.facebook.com/share/16Zpbt8Sfb/)  
 
 Your contributions help improve the learning experience, stability, and features of the platform.  
 
@@ -132,7 +137,7 @@ TriLan C# is licensed under the **MIT License**, making it free to use, modify, 
 
 🌐 Main Web App: [https://trilan-c.landecs.org](https://trilan-c.landecs.org)  
 
-🏢 Built by **LanDecs Team**  
+🏢 Built by **LanDecs**  
 
 <p align="center">  
   <i>TriLan C# is designed for learning, experimentation, and a smooth coding experience on any device.</i>  
