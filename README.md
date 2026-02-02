@@ -65,6 +65,13 @@ This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-the
 
 ![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)  
 
+## 2. Settings & Appearance Panel
+
+**Description:**  
+This screenshot highlights the **Settings panel** of the **TriLan C# web IDE**, focusing on the **Appearance** tab. Users can customize the display mode with options like **Light**, **System**, and **Dark**. The panel also offers a selection of **theme presets** such as **Cosmic Orange**, **Ocean Blue**, and **Monochrome**. Additionally, developers can adjust **typography settings**, including the **editor font**, **UI font**, and **font size**. The layout is clean and intuitive, designed to help users personalize their coding environment for both comfort and productivity.
+
+![Settings & Appearance Panel](https://eldrex.landecs.org/squad/trilan-customization.png)
+
 ---
 
 ## How It Works
