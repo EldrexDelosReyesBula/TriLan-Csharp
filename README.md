@@ -32,7 +32,7 @@
 
 ## Overview
 
-**TriLan C#** is a beta-stage, web-based C# environment that allows users to write, run, and test code with a modern, VS Code–like interface.    
+**TriLan C#** is a beta-stage, web-based C# environment that allows users to write, run, and test code with a modern, VS Code–like interface.  
 
 It is fully functional but still in **active development**, focusing on:  
 
@@ -56,7 +56,7 @@ TriLan C# is ideal for students, educators, and developers looking for a simple 
 
 ---
 
-## Screenshot
+## Screenshots
 
 ### 1. Main Editor Interface
 
@@ -65,10 +65,10 @@ This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-the
 
 ![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)  
 
-## 2. Settings & Appearance Panel
+### 2. Settings & Appearance Panel
 
 **Description:**  
-This screenshot highlights the **Settings panel** of the **TriLan C# web IDE**, focusing on the **Appearance** tab. Users can customize the display mode with options like **Light**, **System**, and **Dark**. The panel also offers a selection of **theme presets** such as **Cosmic Orange**, **Ocean Blue**, and **Monochrome**. Additionally, developers can adjust **typography settings**, including the **editor font**, **UI font**, and **font size**. The layout is clean and intuitive, designed to help users personalize their coding environment for both comfort and productivity.
+This screenshot highlights the **Settings panel** of the **TriLan C# web IDE**, focusing on the **Appearance** tab. Users can customize the display mode with options like **Light**, **System**, and **Dark**. The panel also offers a selection of **theme presets** such as **Cosmic Orange**, **Ocean Blue**, and **Monochrome**. Developers can adjust **typography settings**, including the **editor font**, **UI font**, and **font size**. The layout is clean and intuitive, designed to help users personalize their coding environment for both comfort and productivity.
 
 ![Settings & Appearance Panel](https://eldrex.landecs.org/squad/trilan-customization.png)
 
@@ -104,6 +104,16 @@ TriLan C# uses **free and open-source libraries** for:
 - Connect with us on **Facebook**: [📘 LanDecs Page](https://www.facebook.com/share/16Zpbt8Sfb/)  
 
 Your contributions help improve the learning experience, stability, and features of the platform.  
+
+---
+
+## Releases
+
+Stay updated with the latest versions, bug fixes, and improvements:
+
+- **NEW UPDATE** – [View Release on GitHub](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/releases/tag/NEW-UPDATE)
+
+Check the GitHub releases page for full changelogs and version history.  
 
 ---
 
