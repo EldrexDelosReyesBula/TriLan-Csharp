@@ -1,7 +1,7 @@
 {
   "name": "TriLan C# Compiler",
   "short_name": "TriLan C#",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0f1115",
   "theme_color": "#0ea5e9",

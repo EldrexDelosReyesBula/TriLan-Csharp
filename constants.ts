@@ -3,16 +3,28 @@ import { ThemePreset, Project, AppSettings, Keybinding } from './types';
 export const DEFAULT_C_SHARP_CODE = `using System;
 
 namespace TriLanApp {
-    class Program {
-        static void Main(string[] args) {
-            // Welcome to TriLan C#
-            Console.WriteLine("Hello, World!");
+    class Calculator {
+        static void Main() {
+            Console.Write("Enter first number: ");
+            double num1 = Convert.ToDouble(Console.ReadLine());
             
-            // Try modifying variables below
-            string user = "Developer";
-            int magicNumber = 42;
+            Console.Write("Enter operation (+, -, *, /): ");
+            char operation = Console.ReadKey().KeyChar;
+            Console.WriteLine();
             
-            Console.WriteLine($"Welcome, {user}. The answer is {magicNumber}.");
+            Console.Write("Enter second number: ");
+            double num2 = Convert.ToDouble(Console.ReadLine());
+            
+            double result = operation switch
+            {
+                '+' => num1 + num2,
+                '-' => num1 - num2,
+                '*' => num1 * num2,
+                '/' => num2 != 0 ? num1 / num2 : throw new DivideByZeroException(),
+                _ => throw new InvalidOperationException("Invalid operation")
+            };
+            
+            Console.WriteLine($"Result: {result}");
         }
     }
 }`;
@@ -159,7 +171,7 @@ export const DEFAULT_PROJECT: Project = {
     {
       id: 'main-cs',
       parentId: null,
-      name: 'Program.cs',
+      name: 'Calculator.cs',
       type: 'file',
       language: 'csharp',
       content: DEFAULT_C_SHARP_CODE,

@@ -22,6 +22,13 @@ export interface Project extends ProjectMetadata {
   notes?: string; 
 }
 
+export interface Snapshot {
+    id: string;
+    timestamp: number;
+    name: string;
+    project: Project;
+}
+
 export interface ThemeColors {
   background: string;
   surface: string;
@@ -64,13 +71,24 @@ export interface AppSettings {
   themeMode: 'light' | 'dark' | 'system';
   activeThemeId: string; 
   customColors?: Partial<ThemeColors>;
+  
+  // Font Settings
   editorFontFamily: string;
   editorFontSize: number;
   uiFontFamily: string;
+  
+  // Console Settings
   consolePromptSymbol: string;
   consoleBackgroundColor?: string;
   consoleTextColor?: string;
   consoleFontFamily?: string;
+
+  // Editor Customization Overrides
+  editorBackgroundColor?: string;
+  editorTextColor?: string;
+  editorCursorColor?: string;
+  editorSelectionColor?: string;
+
   hasSeenOnboarding: boolean;
   
   highContrast: boolean;
@@ -94,4 +112,5 @@ export interface ConsoleMessage {
   content: string;
   timestamp: number;
   line?: number;
+  suggestion?: string;
 }

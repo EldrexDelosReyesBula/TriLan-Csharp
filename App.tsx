@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Project, File, Theme, ConsoleMessage, AppSettings } from './types';
+import { Project, File, Theme, ConsoleMessage, AppSettings, Snapshot } from './types';
 import { DEFAULT_PROJECT, THEME_PRESETS, BASE_COLORS, DEFAULT_SETTINGS } from './constants';
 import { compileAndRun } from './services/mockCompiler';
 import { exportProjectToZip, importProjectFromZip } from './services/zipService';
@@ -20,6 +20,11 @@ const App: React.FC = () => {
      const saved = localStorage.getItem('trilan_project_v2');
      if (saved) return JSON.parse(saved);
      return DEFAULT_PROJECT;
+  });
+
+  const [snapshots, setSnapshots] = useState<Snapshot[]>(() => {
+      const saved = localStorage.getItem('trilan_snapshots');
+      return saved ? JSON.parse(saved) : [];
   });
 
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -100,12 +105,11 @@ const App: React.FC = () => {
 
   const activeTheme = getEffectiveTheme();
   
-  // Ensure activeFile is always a valid FILE (not folder)
   const activeFile = project.files.find(f => f.id === project.activeFileId && f.type === 'file') 
       || project.files.find(f => f.type === 'file') 
       || project.files[0];
 
-  // Auto-Save Effect (Debounced 1s)
+  // Auto-Save Effect
   useEffect(() => {
     const handler = setTimeout(() => {
         localStorage.setItem('trilan_project_v2', JSON.stringify(project));
@@ -114,10 +118,14 @@ const App: React.FC = () => {
     return () => clearTimeout(handler);
   }, [project]);
 
-  // Auto-Run Effect (Debounced 1.5s)
+  // Save Snapshots
+  useEffect(() => {
+      localStorage.setItem('trilan_snapshots', JSON.stringify(snapshots));
+  }, [snapshots]);
+
+  // Auto-Run Effect
   useEffect(() => {
       if (!settings.autoRun) return;
-      
       const handler = setTimeout(() => {
           handleRun(true);
       }, 1500);
@@ -128,7 +136,7 @@ const App: React.FC = () => {
     localStorage.setItem('trilan_settings', JSON.stringify(settings));
   }, [settings]);
 
-  // Apply CSS Variables and Dynamic Fonts
+  // Apply CSS Variables
   useEffect(() => {
     const root = document.documentElement;
     const colors = activeTheme.colors;
@@ -146,7 +154,6 @@ const App: React.FC = () => {
     if (settings.reduceMotion) document.body.classList.add('reduce-motion');
     else document.body.classList.remove('reduce-motion');
 
-    // Dynamic Google Fonts Loading
     const fontFamilies = [settings.editorFontFamily, settings.uiFontFamily]
         .map(f => f.split(',')[0].replace(/['"]/g, '').trim());
     
@@ -170,11 +177,10 @@ const App: React.FC = () => {
 
   const handleInputSubmit = (value: string) => {
       if (inputResolverRef.current) {
-          // Echo the input to the console so the user sees what they typed
           setConsoleMessages(prev => [...prev, {
               id: crypto.randomUUID(),
               type: 'info',
-              content: value + '\n', // Add newline for visual separation
+              content: value + '\n', 
               timestamp: Date.now()
           }]);
           
@@ -195,7 +201,6 @@ const App: React.FC = () => {
         return;
     }
 
-    // UX Improvement: Check for empty code to prevent scary errors for beginners
     if (!activeFile.content || !activeFile.content.trim()) {
         if (!isAutoRun) {
              setConsoleMessages([{
@@ -211,28 +216,22 @@ const App: React.FC = () => {
     }
     
     setIsRunning(true);
-    // Ensure console is visible when running
     setIsConsoleVisible(true); 
-    // If it's a manual run, ensure it's open. If auto-run, only open if we are not maximizing editor
     if (!isAutoRun) setIsConsoleOpen(true);
     
     setConsoleMessages([]); 
     setIsWaitingForInput(false);
-    inputResolverRef.current = null; // Clear any stale resolvers
+    inputResolverRef.current = null; 
 
     try { 
-        // We now pass callbacks to the compiler instead of waiting for a result array
         await compileAndRun(
             activeFile.content,
             (message: ConsoleMessage) => {
                 setConsoleMessages(prev => [...prev, message]);
             },
             async () => {
-                // Return a promise that resolves when user types in the console
                 setIsWaitingForInput(true);
-                // Ensure console is open if input is requested
                 setIsConsoleOpen(true);
-                
                 return new Promise<string>((resolve) => {
                     inputResolverRef.current = resolve;
                 });
@@ -260,7 +259,6 @@ const App: React.FC = () => {
           notes: '' 
       };
       setProject(p => {
-          // If adding to a folder, ensure folder is open
           const files = [...p.files];
           if (parentId) {
                const parentIdx = files.findIndex(f => f.id === parentId);
@@ -281,7 +279,6 @@ const App: React.FC = () => {
           isOpen: true
       };
       setProject(p => {
-           // If adding to a folder, ensure parent folder is open
           const files = [...p.files];
           if (parentId) {
                const parentIdx = files.findIndex(f => f.id === parentId);
@@ -293,7 +290,6 @@ const App: React.FC = () => {
   
   const handleDeleteFile = (id: string) => {
       setProject(p => {
-          // Recursive delete
           const toDelete = new Set<string>([id]);
           let changed = true;
           while(changed) {
@@ -307,8 +303,6 @@ const App: React.FC = () => {
           }
           
           const remaining = p.files.filter(f => !toDelete.has(f.id));
-          
-          // If active file was deleted, switch to another
           let newActiveId = p.activeFileId;
           if (toDelete.has(p.activeFileId)) {
               const firstFile = remaining.find(f => f.type === 'file');
@@ -319,52 +313,62 @@ const App: React.FC = () => {
       });
   };
 
-  // Logic to append text to the active file's notes
+  const handleMoveFile = (fileId: string, newParentId: string | null) => {
+      setProject(p => ({
+          ...p,
+          files: p.files.map(f => f.id === fileId ? { ...f, parentId: newParentId } : f)
+      }));
+  };
+
+  const handleSaveSnapshot = () => {
+      const newSnap: Snapshot = {
+          id: crypto.randomUUID(),
+          timestamp: Date.now(),
+          name: project.name,
+          project: JSON.parse(JSON.stringify(project))
+      };
+      setSnapshots(prev => [newSnap, ...prev].slice(0, 5)); // Keep last 5
+      alert('Snapshot saved!');
+  };
+
+  const handleRestoreSnapshot = (snap: Snapshot) => {
+      setProject(snap.project);
+      setIsSettingsOpen(false);
+  };
+  
+  const handleDeleteSnapshot = (id: string) => {
+      setSnapshots(prev => prev.filter(s => s.id !== id));
+  };
+
   const handleAddToNotes = (text: string) => {
       if (activeFile) {
           const currentNotes = activeFile.notes || '';
           const separator = currentNotes ? '\n\n' : '';
           const newNotes = `${currentNotes}${separator}// Snippet from ${activeFile.name}:\n${text}`;
-          
           setProject(p => ({
               ...p,
               files: p.files.map(f => f.id === activeFile.id ? { ...f, notes: newNotes } : f)
           }));
-          
           setIsNotesOpen(true);
       }
   };
 
-  // Keyboard Shortcuts Handler
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-        // Meta key for Mac, Ctrl for others
         const isCtrl = e.ctrlKey || e.metaKey;
-        
-        // Save: Ctrl + S
         if (isCtrl && e.key.toLowerCase() === 's') {
             e.preventDefault();
             setLastSaved(Date.now());
-            // Show system message feedback
             setConsoleMessages(prev => [...prev, { id: crypto.randomUUID(), type: 'system', content: 'Project saved.', timestamp: Date.now() }]);
         }
-
-        // Run: Ctrl + Enter
         if (isCtrl && e.key === 'Enter') {
             e.preventDefault();
-            // Don't trigger if already running
-            if (!isRunning) {
-                handleRun(false);
-            }
+            if (!isRunning) handleRun(false);
         }
-
-        // Sidebar: Ctrl + B
         if (isCtrl && e.key.toLowerCase() === 'b') {
             e.preventDefault();
             setIsSidebarOpen(prev => !prev);
         }
-
-        // Console: Ctrl + `
         if (isCtrl && e.key === '`') {
             e.preventDefault();
             setIsConsoleVisible(prev => {
@@ -372,16 +376,14 @@ const App: React.FC = () => {
                     setIsConsoleOpen(true);
                     return true;
                 }
-                // If visible, toggle open/close of the panel content
                 setIsConsoleOpen(isOpen => !isOpen);
                 return true;
             });
         }
     };
-
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [isRunning, activeFile]); // Re-bind when run state or active file changes for closure capture
+  }, [isRunning, activeFile]);
 
   return (
     <div className={`flex h-screen w-screen bg-background text-text overflow-hidden font-sans transition-colors duration-300 ${settings.highContrast ? 'contrast-more' : ''}`}>
@@ -402,6 +404,7 @@ const App: React.FC = () => {
             onSaveAs={() => setIsSettingsOpen(true)}
             onRenameFile={(id, name) => setProject(p => ({ ...p, files: p.files.map(f => f.id === id ? { ...f, name } : f) }))}
             onDeleteFile={handleDeleteFile}
+            onMoveFile={handleMoveFile}
             isMobile={window.innerWidth < 1024} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}
           />
       )}
@@ -474,9 +477,19 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={settings} onUpdateSettings={setSettings} project={project}
+      <Settings 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        settings={settings} 
+        onUpdateSettings={setSettings} 
+        project={project}
         onSaveAs={(name) => { const np = { ...project, id: crypto.randomUUID(), name }; setProject(np); }} 
-        isMobile={window.innerWidth < 768} />
+        isMobile={window.innerWidth < 768}
+        snapshots={snapshots}
+        onSaveSnapshot={handleSaveSnapshot}
+        onRestoreSnapshot={handleRestoreSnapshot}
+        onDeleteSnapshot={handleDeleteSnapshot}
+      />
       
       <About isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} onOpenPrivacy={() => {setIsAboutOpen(false); setIsPrivacyOpen(true)}} onOpenTerms={() => {setIsAboutOpen(false); setIsTermsOpen(true)}} />
       <Privacy isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
