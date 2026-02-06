@@ -209,12 +209,6 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 
 See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-### **Good First Issues**
-Looking for where to start? Check issues labeled:
-- [`good-first-issue`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/good-first-issue)
-- [`help-wanted`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/help-wanted)
-- [`documentation`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/documentation)
-
 ---
 
 ## 🐛 **Reporting Issues**
