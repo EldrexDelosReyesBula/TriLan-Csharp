@@ -148,7 +148,7 @@ class Calculator
             '-' => num1 - num2,
             '*' => num1 * num2,
             '/' => num2 != 0 ? num1 / num2 : throw new DivideByZeroException(),
-            _ => throw new InvalidOperationException("Invalid operation")
+            _ => throw new InvalidOperationException("Invalid operation");
         };
         
         Console.WriteLine($"Result: {result}");
