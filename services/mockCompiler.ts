@@ -13,19 +13,14 @@ const stripComments = (code: string): string => {
 type PrintCallback = (msg: ConsoleMessage) => void;
 type InputCallback = () => Promise<string>;
 
-// Simple expression evaluator for the mock interpreter
+// Simple expression evaluator using JS Runtime
 const evaluateCondition = (expr: string, vars: Record<string, any>): boolean => {
     try {
-        let evalStr = expr;
-        Object.keys(vars).forEach(key => {
-            let val = vars[key];
-            if (typeof val === 'string') val = `"${val}"`;
-            // specific regex to replace whole word only
-            const reg = new RegExp(`\\b${key}\\b`, 'g');
-            evalStr = evalStr.replace(reg, val);
-        });
+        const keys = Object.keys(vars);
+        const values = Object.values(vars);
         // eslint-disable-next-line no-new-func
-        return new Function(`return ${evalStr}`)();
+        const func = new Function(...keys, `return ${expr};`);
+        return !!func(...values);
     } catch (e) {
         return false;
     }
@@ -41,7 +36,6 @@ export const compileAndRun = async (
     const cleanedCode = stripComments(code);
     
     // --- SYNTAX CHECKS ---
-    // 1. Semicolon check
     const lines = cleanedCode.split('\n');
     for(let i=0; i<lines.length; i++) {
         const trimmed = lines[i].trim();
@@ -53,11 +47,14 @@ export const compileAndRun = async (
              trimmed.startsWith('for') || trimmed.startsWith('foreach') || trimmed.startsWith('while') ||
              trimmed.endsWith('}') || trimmed.endsWith('{') || trimmed.startsWith('break') || trimmed.startsWith('continue');
 
-        if (!isStructural && !trimmed.endsWith(';')) {
+        const isMultiLineContinuation = trimmed.endsWith(',') || trimmed.endsWith('=>') || trimmed.endsWith('switch');
+
+        if (!isStructural && !isMultiLineContinuation && !trimmed.endsWith(';')) {
              onPrint({
                   id: crypto.randomUUID(),
                   type: 'error',
                   content: `Error CS1002: ; expected at line ${i + 1}`,
+                  suggestion: "Add a semicolon ';' at the end of the line.",
                   timestamp,
                   line: i + 1
               });
@@ -69,13 +66,10 @@ export const compileAndRun = async (
     onPrint({ id: crypto.randomUUID(), type: 'system', content: 'Build started...', timestamp });
 
     // --- INTERPRETER PREPARATION ---
-    
-    // Determine Entry Point: Explicit Main vs Top-Level Statements
     const mainMethodRegex = /static\s+void\s+Main\s*\(/;
     let executionLines: string[] = [];
 
     if (mainMethodRegex.test(cleanedCode)) {
-        // Explicit Main: Extract the body of Main
         const linesTrimmed = lines.map(l => l.trim());
         let inMain = false;
         let braceCount = 0;
@@ -83,27 +77,47 @@ export const compileAndRun = async (
 
         for(let line of linesTrimmed) {
             if (!mainStarted && /static\s+void\s+Main/.test(line)) {
-                inMain = true;
                 mainStarted = true;
-                if (line.includes('{')) braceCount++;
+                if (line.includes('{')) {
+                    inMain = true;
+                    braceCount = 1;
+                }
                 continue;
             }
-            if (inMain) {
-                if (line.includes('{')) braceCount++;
-                if (line.includes('}')) braceCount--;
-                
-                if (braceCount <= 0) {
-                    inMain = false; 
-                    break;
+            if (mainStarted && !inMain) {
+                if (line.includes('{')) {
+                    inMain = true;
+                    braceCount = 1;
+                    continue; 
                 }
-                if (line !== '{' && line !== '}') executionLines.push(line);
+            }
+            if (inMain) {
+                const openCount = (line.match(/\{/g) || []).length;
+                const closeCount = (line.match(/\}/g) || []).length;
+                const nextBraceCount = braceCount + openCount - closeCount;
+                if (nextBraceCount === 0 && closeCount > 0) {
+                    if (line === '}') break; 
+                }
+                braceCount = nextBraceCount;
+                executionLines.push(line);
+                if (braceCount <= 0) break;
             }
         }
     } else {
-        // Top-Level Statements: Treat the whole file as execution body
         executionLines = lines.map(l => l.trim()).filter(l => {
             return !l.startsWith('using') && !l.startsWith('namespace') && !l.startsWith('class Program') && l !== '{' && l !== '}';
         });
+    }
+
+    if (executionLines.length === 0 && mainMethodRegex.test(cleanedCode)) {
+         onPrint({
+            id: crypto.randomUUID(),
+            type: 'error',
+            content: 'Error CS5001: Program does not contain a static \'Main\' method suitable for an entry point',
+            suggestion: 'Ensure your Main method is inside a class and has the correct signature: static void Main()',
+            timestamp: Date.now()
+        });
+        return;
     }
 
     // --- INTERPRETER STATE ---
@@ -114,28 +128,21 @@ export const compileAndRun = async (
         if (buffer) {
             onPrint({ id: crypto.randomUUID(), type: 'info', content: buffer, timestamp: Date.now() });
             buffer = "";
-            // Significant delay to ensure DOM render before prompt
-            await new Promise(r => setTimeout(r, 50));
+            // Significant delay to ensure DOM render and state updates propagate before blocking for input
+            await new Promise(r => setTimeout(r, 100));
         }
     };
 
     const log = (text: string, isLine: boolean) => {
         if (text === undefined || text === null) text = "";
         if (typeof text !== 'string') text = String(text);
-
         if (text.includes('\\n')) text = text.replace(/\\n/g, '\n');
         
         if (text.includes('\n')) {
             const parts = text.split('\n');
             parts.forEach((p, i) => {
                 if (i < parts.length - 1) {
-                    onPrint({
-                        id: crypto.randomUUID(),
-                        type: 'info',
-                        content: buffer + p,
-                        timestamp: Date.now()
-                    });
-                    buffer = "";
+                    buffer += p;
                 } else {
                     buffer += p;
                 }
@@ -155,114 +162,78 @@ export const compileAndRun = async (
         }
     };
 
-    // Resolves a string expression (for Console.Write, string building)
-    const resolveExpression = (expr: string, localVars: any): string => {
+    // --- RECURSION SAFE EVALUATOR ---
+    const evaluateValue = (valExpr: string, localVars: any, depth: number = 0): any => {
+        if (depth > 10) throw new Error("StackOverflowException: Expression too complex");
+        
+        valExpr = valExpr.trim();
+
+        // DateTime Mock
+        if (valExpr.includes('DateTime.Now')) return new Date().toLocaleString();
+        
+        // Literals
+        const isStringLiteral = (valExpr.startsWith('"') && valExpr.endsWith('"')) || (valExpr.startsWith("'") && valExpr.endsWith("'"));
+        if (isStringLiteral) return valExpr.slice(1, -1);
+        if (valExpr === 'true') return true;
+        if (valExpr === 'false') return false;
+
+        // Runtime Evaluation using JS Function
+        try {
+            // Check for complex C# specific syntax that JS new Function won't like
+            // e.g. switch expressions, lambda arrows, object creation (new ...)
+            if (!valExpr.includes('new ') && !valExpr.includes('switch') && !valExpr.includes('=>')) {
+                const keys = Object.keys(localVars);
+                const values = Object.values(localVars);
+                
+                // Pass variables as arguments to the dynamic function to ensure current scope values are used
+                // eslint-disable-next-line no-new-func
+                const func = new Function(...keys, `return ${valExpr};`);
+                return func(...values);
+            }
+        } catch (e) {
+            // Fallback for complex expressions or failures
+        }
+
+        return resolveExpression(valExpr, localVars, depth + 1);
+    };
+
+    const resolveExpression = (expr: string, localVars: any, depth: number = 0): string => {
+        if (depth > 10) return expr; 
         expr = expr.trim();
         if (!expr) return "";
 
-        // Interpolation $"..."
+        // String Interpolation
         if (expr.startsWith('$')) {
             const content = expr.slice(expr.indexOf('"') + 1, expr.lastIndexOf('"'));
-            return content.replace(/\{(\w+)\}/g, (_, key) => {
-                if (localVars[key] !== undefined) return String(localVars[key]);
-                return `{${key}}`; 
+            return content.replace(/\{([^{}]+)\}/g, (_, expression) => {
+                // Recursively evaluate the expression inside {}
+                const val = evaluateValue(expression, localVars, depth + 1);
+                return val !== undefined && val !== null ? String(val) : `{${expression}}`;
             });
         }
         
-        // Literal String
-        if (expr.startsWith('"') && expr.endsWith('"') && !expr.includes('+')) {
-            return expr.slice(1, -1);
-        }
-
-        // Variable lookup (simple)
-        if (localVars[expr] !== undefined && !expr.includes('+') && !expr.includes('-') && !expr.includes('*')) {
-             return String(localVars[expr]);
-        }
-
-        // Logic for Math vs String Concatenation
-        const containsStringQuote = expr.includes('"');
-        // If it looks like math and has no quotes, try to eval it as math
-        if (!containsStringQuote) {
-             try {
-                 let evalStr = expr;
-                 // Replace variables with their values
-                 for (const [key, val] of Object.entries(localVars)) {
-                     const reg = new RegExp(`\\b${key}\\b`, 'g');
-                     evalStr = evalStr.replace(reg, String(val));
-                 }
-                 // Safe-ish eval for math
-                 // eslint-disable-next-line no-new-func
-                 const result = new Function(`return ${evalStr}`)();
-                 return String(result);
-             } catch (e) {
-                 // Fall through
-             }
-        }
-
-        // Fallback: Naive Concatenation
-        const parts = expr.split('+');
-        let result = '';
-
-        parts.forEach(part => {
-            part = part.trim();
-            if ((part.startsWith('"') && part.endsWith('"'))) {
-                result += part.slice(1, -1);
-            } else if (localVars[part] !== undefined) {
-                result += localVars[part];
-            } else if (part.match(/^-?\d+$/)) {
-                result += part;
-            } else {
-                if (localVars[part] !== undefined) result += localVars[part];
-                else result += ""; 
-            }
-        });
-
-        if (result === '') {
-            if (localVars[expr] !== undefined) return String(localVars[expr]);
-            if (expr.match(/^-?\d+$/)) return expr;
-        }
-
-        return result;
-    };
-    
-    // Resolves a value expression preserving types (int, float, bool)
-    const evaluateValue = (valExpr: string, localVars: any, typeHint?: string): any => {
-        valExpr = valExpr.trim();
-        const isStringLiteral = valExpr.startsWith('"');
-        const isBoolLiteral = valExpr === 'true' || valExpr === 'false';
-        const isNumberLiteral = /^-?\d+(\.\d+)?$/.test(valExpr);
-
-        if (isStringLiteral) {
-             return valExpr.slice(1, -1);
-        }
+        if (expr.startsWith('"') && expr.endsWith('"') && !expr.includes('+')) return expr.slice(1, -1);
+        if (localVars[expr] !== undefined && !expr.includes('+')) return String(localVars[expr]);
         
-        if (isBoolLiteral) {
-            return valExpr === 'true';
-        }
-        
-        // Math expression or simple number
-        if (!isStringLiteral && (isNumberLiteral || valExpr.match(/[\+\-\*\/]/) || localVars[valExpr] !== undefined)) {
-            try {
-                 let evalStr = valExpr;
-                 for (const [key, val] of Object.entries(localVars)) {
-                     const reg = new RegExp(`\\b${key}\\b`, 'g');
-                     let replacement = val;
-                     if (typeof val === 'string') replacement = `"${val}"`;
-                     evalStr = evalStr.replace(reg, String(replacement));
-                 }
-                 // eslint-disable-next-line no-new-func
-                 const result = new Function(`return ${evalStr}`)();
-                 return result;
-            } catch(e) {
-                // Fallback
-            }
+        // Fallback for concatenation
+        if (expr.includes('+')) {
+            const parts = expr.split('+');
+            let result = '';
+            parts.forEach(part => {
+                const trimmed = part.trim();
+                if (trimmed.startsWith('"')) {
+                     result += trimmed.slice(1, -1);
+                } else {
+                     const val = evaluateValue(trimmed, localVars, depth + 1);
+                     result += (val !== undefined ? val : "");
+                }
+            });
+            return result;
         }
 
-        // Fallback to string if we couldn't parse
-        return resolveExpression(valExpr, localVars);
+        return expr;
     };
 
-    // Helper to find the end of a block code {...}
     const skipBody = (linesArr: string[], startIdx: number): number => {
         const nextLineIndex = startIdx + 1;
         if (nextLineIndex >= linesArr.length) return linesArr.length;
@@ -270,7 +241,6 @@ export const compileAndRun = async (
         const nextLine = linesArr[nextLineIndex].trim();
         const sameLine = linesArr[startIdx].trim();
 
-        // Same line brace
         if (sameLine.includes('{')) {
              let depth = 1;
              for (let j = startIdx + 1; j < linesArr.length; j++) {
@@ -280,8 +250,6 @@ export const compileAndRun = async (
              }
              return linesArr.length - 1;
         }
-
-        // Next line brace
         if (nextLine.startsWith('{')) {
              let depth = 0;
              let foundStart = false;
@@ -292,13 +260,9 @@ export const compileAndRun = async (
              }
              return linesArr.length - 1;
         }
-
-        // No braces -> Single line statement, skip next line
         return startIdx + 1;
     };
 
-    // --- RECURSIVE EXECUTION ENGINE ---
-    // Returns status: 'normal', 'break', 'continue'
     const executeLines = async (linesToExec: string[]): Promise<'normal' | 'break' | 'continue'> => {
         let lastIfWasTrue = false;
 
@@ -306,41 +270,89 @@ export const compileAndRun = async (
             const line = linesToExec[i];
             if (!line || line.startsWith('//')) continue;
             
-            // Break/Continue Check
             if (line.trim() === 'break;') return 'break';
             if (line.trim() === 'continue;') return 'continue';
 
-            // --- CONTROL FLOW ---
             if (line.startsWith('if')) {
                 const condMatch = line.match(/if\s*\((.*)\)/);
                 if (condMatch) {
                     const condition = condMatch[1];
                     const isTrue = evaluateCondition(condition, variables);
                     lastIfWasTrue = isTrue;
-                    
-                    if (!isTrue) {
-                        i = skipBody(linesToExec, i);
-                    }
+                    if (!isTrue) i = skipBody(linesToExec, i);
                 }
                 continue;
             }
 
             if (line.startsWith('else')) {
-                if (lastIfWasTrue) {
-                    i = skipBody(linesToExec, i);
-                }
+                if (lastIfWasTrue) i = skipBody(linesToExec, i);
                 continue;
             }
 
-            // --- VARIABLE DECLARATION ---
-            const varMatch = line.match(/^(int|string|var|bool|double)\s+(\w+)\s*=\s*(.*);/);
+            // --- SWITCH ---
+            const switchAssignMatch = line.match(/^(int|string|var|bool|double|char|[\w<>]+)\s+(\w+)\s*=\s*(.+)\s+switch$/);
+            if (switchAssignMatch) {
+                const [_, type, name, switchOnExpr] = switchAssignMatch;
+                const switchVal = evaluateValue(switchOnExpr, variables);
+                
+                const blockEnd = skipBody(linesToExec, i);
+                let matched = false;
+                let resultValue = null;
+                
+                for (let j = i + 1; j < blockEnd; j++) {
+                    if (matched) break;
+                    const armLine = linesToExec[j].trim();
+                    if (!armLine || armLine === '{' || armLine === '}' || armLine === '};') continue;
+                    
+                    const armMatch = armLine.match(/^(.+?)\s*=>\s*(.+?)(,?)$/);
+                    
+                    if (armMatch) {
+                         const [__, pattern, resultExpr] = armMatch;
+                         let isMatch = false;
+                         if (pattern === '_') isMatch = true;
+                         else {
+                             const patVal = evaluateValue(pattern, variables);
+                             isMatch = (String(patVal) === String(switchVal));
+                         }
+
+                         if (isMatch) {
+                             if (resultExpr.includes('throw ')) {
+                                 const msg = resultExpr.match(/new \w+\((.*)\)/)?.[1] || "Error";
+                                 if (resultExpr.trim().startsWith('throw ')) {
+                                    throw new Error(`Runtime Error: ${msg.replace(/"/g, '')}`);
+                                 }
+                             }
+                             try {
+                                 resultValue = evaluateValue(resultExpr, variables);
+                             } catch(e: any) {
+                                 throw new Error(`Runtime Error in switch: ${e.message}`);
+                             }
+                             matched = true;
+                         }
+                    }
+                }
+                
+                if (matched) variables[name] = resultValue;
+                else throw new Error("SwitchExpressionException: Non-exhaustive switch expression");
+                
+                i = blockEnd;
+                continue;
+            }
+
+            // --- VARIABLES ---
+            const varMatch = line.match(/^(int|string|var|bool|double|char|[\w<>]+)\s+(\w+)\s*=\s*(.*);/);
             if (varMatch) {
                 const [_, type, name, valExpr] = varMatch;
                 
-                if (valExpr.includes('Console.ReadLine()')) {
-                    await flushBuffer();
-                    const userInput = await onInput();
-                    if (valExpr.includes('Convert.ToInt32') || type === 'int') {
+                if (valExpr.includes('new ') && valExpr.endsWith('()') && !valExpr.includes('Exception')) {
+                    variables[name] = {}; 
+                } 
+                else if (valExpr.includes('Console.ReadLine()') || valExpr.includes('Console.ReadKey()')) {
+                    await flushBuffer(); // CRITICAL: Flush output to screen before blocking
+                    const userInput = await onInput(); 
+                    if (valExpr.includes('ReadKey')) {
+                        variables[name] = userInput && userInput.length > 0 ? userInput[0] : '\0';
+                    } else if (valExpr.includes('Convert.ToInt32') || type === 'int') {
                         variables[name] = parseInt(userInput) || 0;
                     } else if (valExpr.includes('Convert.ToDouble') || type === 'double') {
                         variables[name] = parseFloat(userInput) || 0.0;
@@ -349,11 +361,8 @@ export const compileAndRun = async (
                     }
                 } else {
                     let finalValue = evaluateValue(valExpr, variables);
-                    
                     if (type === 'int') {
-                         // Type check simulation
-                         if (typeof finalValue === 'string') throw new Error(`Error CS0029: Cannot implicitly convert type 'string' to 'int'`);
-                         if (typeof finalValue === 'boolean') throw new Error(`Error CS0029: Cannot implicitly convert type 'bool' to 'int'`);
+                         if (typeof finalValue === 'string' || typeof finalValue === 'boolean') throw new Error(`Error CS0029: Cannot implicitly convert type to 'int'`);
                          finalValue = Math.floor(Number(finalValue));
                          if (isNaN(finalValue)) finalValue = 0;
                     } else if (type === 'double') {
@@ -364,53 +373,39 @@ export const compileAndRun = async (
                 continue;
             }
 
-            // --- ASSIGNMENT (Reassignment) ---
+            // --- PROPERTY ASSIGNMENT ---
+            const propAssignMatch = line.match(/^\s*(\w+)\.(\w+)\s*=\s*(.*);/);
+            if (propAssignMatch) {
+                const [_, objName, propName, valExpr] = propAssignMatch;
+                if (variables[objName]) {
+                    variables[objName][propName] = evaluateValue(valExpr, variables);
+                }
+                continue;
+            }
+
+            // --- REASSIGNMENT ---
             const assignMatch = line.match(/^\s*(\w+)\s*=\s*([^=].*);/);
             if (assignMatch) {
                 const [_, name, valExpr] = assignMatch;
                 if (variables[name] !== undefined) {
-                     if (valExpr.includes('Console.ReadLine()')) {
+                     if (valExpr.includes('Console.ReadLine()') || valExpr.includes('Console.ReadKey()')) {
                         await flushBuffer();
                         const userInput = await onInput();
-                        if (typeof variables[name] === 'number') {
+                        if (valExpr.includes('ReadKey')) {
+                             variables[name] = userInput && userInput.length > 0 ? userInput[0] : '\0';
+                        } else if (typeof variables[name] === 'number') {
                              variables[name] = parseFloat(userInput) || 0;
                         } else {
                              variables[name] = userInput;
                         }
                      } else {
                         const newVal = evaluateValue(valExpr, variables);
-                        // Basic type preservation
                         if (typeof variables[name] === 'number') {
                             variables[name] = Number(newVal);
                         } else {
                             variables[name] = newVal;
                         }
                      }
-                }
-                continue;
-            }
-
-            // --- COMPOUND ASSIGNMENT (+=, -=) ---
-            const compoundMatch = line.match(/^\s*(\w+)\s*(\+|-)=\s*(.*);/);
-            if (compoundMatch) {
-                const [_, name, op, valExpr] = compoundMatch;
-                if (variables[name] !== undefined) {
-                    const diff = evaluateValue(valExpr, variables);
-                    if (op === '+') variables[name] += diff;
-                    if (op === '-') variables[name] -= diff;
-                }
-                continue;
-            }
-
-            // --- INCREMENT / DECREMENT ---
-            const incDecMatch = line.match(/^\s*(?:(\w+)(\+\+|--)|(\+\+|--)(\w+))\s*;/);
-            if (incDecMatch) {
-                // Determine which group matched
-                const name = incDecMatch[1] || incDecMatch[4];
-                const op = incDecMatch[2] || incDecMatch[3];
-                if (variables[name] !== undefined && typeof variables[name] === 'number') {
-                    if (op === '++') variables[name]++;
-                    if (op === '--') variables[name]--;
                 }
                 continue;
             }
@@ -422,24 +417,19 @@ export const compileAndRun = async (
                 const args = consoleMatch[2];
                 const output = resolveExpression(args, variables);
                 log(output, isLine);
-                // Ensure UI updates (yield)
+                // Artificial delay for visualization
                 await new Promise(r => setTimeout(r, 10));
                 continue;
             }
 
             // --- FOR LOOP ---
             if (line.startsWith('for')) {
-                // Regex supports: for (int i = 0; ...), for (i = 0; ...)
-                // Group 1: optional 'int', Group 2: variable name, Group 3: start val
-                // Group 4: operator, Group 5: limit, Group 6: iterator
                 const loopHead = line.match(/for\s*\(\s*(?:int\s+)?(\w+)\s*=\s*(\d+|\w+);\s*\w+\s*(<=|<|>=|>)\s*(\w+|\d+);\s*\w+(\+\+|--)\s*\)/);
-                
                 if (loopHead) {
                     const [_, loopVar, startRaw, operator, limitRaw, iterator] = loopHead;
                     
                     let start = evaluateValue(startRaw, variables);
                     const limit = evaluateValue(limitRaw, variables);
-                    
                     const blockEnd = skipBody(linesToExec, i);
                     const bodyLines = linesToExec.slice(i + 1, blockEnd).filter(l => l !== '{' && l !== '}');
                     
@@ -456,13 +446,8 @@ export const compileAndRun = async (
                     let iterCount = 0;
                     while (check(val) && iterCount < 1000) {
                         variables[loopVar] = val;
-                        
-                        // Recursive Execution!
                         const status = await executeLines(bodyLines);
-                        
                         if (status === 'break') break;
-                        // continue handled implicitly by loop
-                        
                         if (iterator === '++') val++;
                         else val--;
                         iterCount++;
@@ -477,14 +462,12 @@ export const compileAndRun = async (
     try {
         await executeLines(executionLines);
         await flushBuffer();
-
         onPrint({
             id: crypto.randomUUID(),
             type: 'success',
             content: 'Build succeeded. 0 Errors, 0 Warnings.',
             timestamp: Date.now() + 100,
         });
-
     } catch (e: any) {
          let msg = e.message || 'Runtime Error';
          if (!msg.startsWith('Error')) msg = 'Runtime Error: ' + msg;
@@ -492,6 +475,7 @@ export const compileAndRun = async (
             id: crypto.randomUUID(),
             type: 'error',
             content: msg,
+            suggestion: msg.includes('Call stack') ? 'Check for infinite recursion or loops.' : 'Check for syntax errors or invalid variable types.',
             timestamp: Date.now(),
         });
     }
