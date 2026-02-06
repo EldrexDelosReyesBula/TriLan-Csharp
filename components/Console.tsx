@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ConsoleMessage, AppSettings } from '../types';
-import { Terminal, Trash2, AlertCircle, CheckCircle, Info, ChevronUp, ChevronDown, Maximize2, Minimize2, X, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Terminal, Trash2, AlertCircle, CheckCircle, Info, ChevronUp, ChevronDown, Maximize2, Minimize2, X, AlertTriangle, ArrowRight, Lightbulb } from 'lucide-react';
 
 interface ConsoleProps {
   messages: ConsoleMessage[];
@@ -146,27 +146,35 @@ const Console: React.FC<ConsoleProps> = ({
             messages.map((msg, index) => (
               <div 
                 key={msg.id} 
-                className="flex items-start space-x-3 group animate-in slide-in-from-left-2 duration-300"
+                className="flex flex-col space-y-1 animate-in slide-in-from-left-2 duration-300"
               >
-                <span className="text-[10px] text-text-muted mt-[3px] opacity-0 group-hover:opacity-50 select-none w-12 text-right">
-                    {new Date(msg.timestamp).toLocaleTimeString([], {hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit'})}
-                </span>
-                <div className="mt-0.5 shrink-0">
-                  {msg.type === 'error' && <AlertCircle size={14} className="text-red-500" />}
-                  {msg.type === 'warning' && <AlertTriangle size={14} className="text-yellow-500" />}
-                  {msg.type === 'success' && <CheckCircle size={14} className="text-green-500" />}
-                  {msg.type === 'info' && <span className="text-accent font-bold">{promptSymbol}</span>}
-                  {msg.type === 'system' && <Info size={14} className="text-blue-400" />}
+                <div className="flex items-start space-x-3 group">
+                    <span className="text-[10px] text-text-muted mt-[3px] opacity-0 group-hover:opacity-50 select-none w-12 text-right">
+                        {new Date(msg.timestamp).toLocaleTimeString([], {hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit'})}
+                    </span>
+                    <div className="mt-0.5 shrink-0">
+                    {msg.type === 'error' && <AlertCircle size={14} className="text-red-500" />}
+                    {msg.type === 'warning' && <AlertTriangle size={14} className="text-yellow-500" />}
+                    {msg.type === 'success' && <CheckCircle size={14} className="text-green-500" />}
+                    {msg.type === 'info' && <span className="text-accent font-bold">{promptSymbol}</span>}
+                    {msg.type === 'system' && <Info size={14} className="text-blue-400" />}
+                    </div>
+                    <div className={`break-all leading-relaxed whitespace-pre-wrap ${
+                        msg.type === 'error' ? 'text-red-400' : 
+                        msg.type === 'warning' ? 'text-yellow-400' :
+                        msg.type === 'success' ? 'text-green-400' : 
+                        msg.type === 'system' ? 'text-blue-300 italic' : 
+                        settings?.consoleTextColor ? '' : 'text-text'
+                    }`}>
+                    {msg.content}
+                    </div>
                 </div>
-                <div className={`break-all leading-relaxed whitespace-pre-wrap ${
-                    msg.type === 'error' ? 'text-red-400' : 
-                    msg.type === 'warning' ? 'text-yellow-400' :
-                    msg.type === 'success' ? 'text-green-400' : 
-                    msg.type === 'system' ? 'text-blue-300 italic' : 
-                    settings?.consoleTextColor ? '' : 'text-text'
-                }`}>
-                  {msg.content}
-                </div>
+                {msg.suggestion && (
+                    <div className="flex items-start space-x-3 ml-[72px] mt-1 p-2 rounded-lg bg-surface-highlight/50 border border-border/50">
+                        <Lightbulb size={12} className="text-accent shrink-0 mt-0.5" />
+                        <span className="text-xs text-text-muted italic"><strong className="text-accent not-italic">Suggestion:</strong> {msg.suggestion}</span>
+                    </div>
+                )}
               </div>
             ))
           )}

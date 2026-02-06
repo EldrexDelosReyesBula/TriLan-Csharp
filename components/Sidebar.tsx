@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Project, File } from '../types';
-import { FileCode, FileText, Plus, FolderPlus, Settings, Info, Upload, Edit2, Trash2, X, ChevronRight, ChevronDown, BookOpen, Folder, FolderOpen } from 'lucide-react';
+import { FileCode, FileText, Plus, FolderPlus, Settings, Info, Upload, Edit2, Trash2, X, ChevronRight, ChevronDown, BookOpen, Folder, FolderOpen, MoreVertical, GripVertical } from 'lucide-react';
 
 interface SidebarProps {
   project: Project;
@@ -15,6 +15,7 @@ interface SidebarProps {
   onSaveAs: () => void; 
   onRenameFile: (id: string, newName: string) => void;
   onDeleteFile: (id: string) => void;
+  onMoveFile: (fileId: string, newParentId: string | null) => void; // New prop for DnD
   isMobile: boolean;
   isOpen: boolean;
   onClose: () => void;
@@ -35,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSaveAs,
   onRenameFile,
   onDeleteFile,
+  onMoveFile,
   isMobile,
   isOpen,
   onClose,
@@ -45,6 +47,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [contextMenuItemId, setContextMenuItemId] = useState<string | null>(null);
   const [contextMenuItemType, setContextMenuItemType] = useState<'file'|'folder'|null>(null);
   const [renameValue, setRenameValue] = useState('');
+  
+  // Drag and Drop State
+  const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -57,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const openContextMenu = (id: string, name: string, type: 'file'|'folder', e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       setContextMenuItemId(id);
       setContextMenuItemType(type);
       setRenameValue(name);
@@ -100,12 +107,76 @@ const Sidebar: React.FC<SidebarProps> = ({
       }
   };
 
+  // Drag Handlers
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+      e.dataTransfer.setData('text/plain', id);
+      setDraggedItemId(id);
+      e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string, type: 'file' | 'folder') => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (draggedItemId === id) return;
+      
+      // If dragging over a folder, that's a valid target
+      // If dragging over a file, the target is the file's parent
+      if (type === 'folder') {
+          setDragOverId(id);
+      } else {
+          // Optional: highlight parent folder logic here, simple version highlights file
+          // but we will interpret drop on file as drop into parent
+          setDragOverId(id);
+      }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only clear if we really left the item. React events bubble so this can be tricky.
+      // Often better to not clear instantly or check target.
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string, targetType: 'file' | 'folder', parentId: string | null) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragOverId(null);
+      setDraggedItemId(null);
+      const droppedId = e.dataTransfer.getData('text/plain');
+      
+      if (!droppedId || droppedId === targetId) return;
+
+      // Logic:
+      // If dropped on folder -> move to folder
+      // If dropped on file -> move to that file's parent
+      
+      let newParent = null;
+      if (targetType === 'folder') {
+          newParent = targetId;
+      } else {
+          newParent = parentId;
+      }
+
+      // Prevent dropping folder into itself
+      if (droppedId === newParent) return;
+      
+      onMoveFile(droppedId, newParent);
+  };
+  
+  const handleRootDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOverId(null);
+      const droppedId = e.dataTransfer.getData('text/plain');
+      if (droppedId) {
+          onMoveFile(droppedId, null);
+      }
+  };
+
   // Recursive Tree Renderer
   const renderTree = (parentId: string | null, depth: number = 0) => {
     const items = project.files
         .filter(f => f.parentId === parentId)
         .sort((a, b) => {
-            // Folders first, then files
             if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
             return a.name.localeCompare(b.name);
         });
@@ -113,12 +184,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     return items.map(item => (
         <React.Fragment key={item.id}>
             <div 
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id)}
+                onDragOver={(e) => handleDragOver(e, item.id, item.type)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, item.id, item.type, item.parentId)}
+                onContextMenu={(e) => openContextMenu(item.id, item.name, item.type, e)}
                 className={`
                     w-full flex items-center space-x-2 px-3 py-1.5 text-sm transition-all duration-200 group relative
                     ${item.type === 'file' && activeFileId === item.id 
                         ? 'bg-primary/10 text-primary font-semibold' 
                         : 'text-text-muted hover:bg-surface-highlight hover:text-text'
                     }
+                    ${dragOverId === item.id ? 'bg-accent/20 border-2 border-accent border-dashed rounded-lg z-10' : 'border-2 border-transparent'}
                 `}
                 style={{ paddingLeft: `${depth * 16 + 12}px` }}
                 onClick={(e) => {
@@ -130,6 +208,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }
                 }}
             >
+                {/* Drag Handle (Visual Only) */}
+                <div className="opacity-0 group-hover:opacity-50 cursor-grab active:cursor-grabbing">
+                    <GripVertical size={12} />
+                </div>
+
                 {/* Icon */}
                 <div className="shrink-0">
                     {item.type === 'folder' ? (
@@ -147,16 +230,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {/* Name */}
                 <span className="truncate flex-1 text-left select-none">{item.name}</span>
 
-                {/* Edit Action (Visible on Hover) */}
-                <div 
+                {/* Edit Action */}
+                <button 
                     onClick={(e) => openContextMenu(item.id, item.name, item.type, e)}
                     className={`
                         p-1 rounded-lg hover:bg-surface text-text-muted transition-opacity
                         ${(activeFileId === item.id || contextMenuItemId === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                     `}
                 >
-                    <Edit2 size={12} />
-                </div>
+                    <MoreVertical size={14} />
+                </button>
             </div>
             
             {/* Recursively render children if folder is open */}
@@ -248,6 +331,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                  <button 
                     onClick={() => onAddFile(null)}
                     className="flex items-center justify-center space-x-1.5 bg-surface-highlight hover:bg-border text-text text-xs py-2 rounded-lg transition-all font-medium border border-border active:scale-95"
+                    title="Add file to root"
                 >
                     <Plus size={14} />
                     <span>File</span>
@@ -255,6 +339,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <button 
                     onClick={() => onAddFolder(null)}
                     className="flex items-center justify-center space-x-1.5 bg-surface-highlight hover:bg-border text-text text-xs py-2 rounded-lg transition-all font-medium border border-border active:scale-95"
+                    title="Add folder to root"
                 >
                     <FolderPlus size={14} />
                     <span>Folder</span>
@@ -262,7 +347,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* File Tree */}
-            <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
+            <div 
+                className="flex-1 overflow-y-auto py-2 custom-scrollbar"
+                onDragOver={(e) => { e.preventDefault(); /* Allow drop on empty space */ }}
+                onDrop={handleRootDrop}
+            >
                 {renderTree(null)}
                 <div className="h-10" />
             </div>

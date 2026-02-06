@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { AppSettings } from '../types';
+import React, { useState } from 'react';
+import { AppSettings, Snapshot } from '../types';
 import { THEME_PRESETS, EDITOR_FONTS, UI_FONTS } from '../constants';
 import { 
     X, Palette, Save, 
-    Monitor, Moon, Sun, Terminal, Download,
-    Accessibility, Keyboard, Eye, Zap, Layers, Type, FileCode, ToggleLeft, ToggleRight, Play
+    Monitor, Moon, Sun, Terminal,
+    Accessibility, Keyboard, Eye, Zap, Layers, Type, FileCode, ToggleLeft, ToggleRight, Play, History, RotateCcw, Trash2, MousePointer
 } from 'lucide-react';
 
 interface SettingsProps {
@@ -15,34 +15,19 @@ interface SettingsProps {
   onSaveAs: (newName: string) => void;
   project: any;
   isMobile: boolean;
+  onSaveSnapshot: () => void;
+  onRestoreSnapshot: (snapshot: Snapshot) => void;
+  onDeleteSnapshot: (id: string) => void;
+  snapshots: Snapshot[];
 }
 
 const Settings: React.FC<SettingsProps> = ({
   isOpen, onClose, settings, onUpdateSettings, project, 
-  onSaveAs, isMobile
+  onSaveAs, isMobile, onSaveSnapshot, onRestoreSnapshot, onDeleteSnapshot, snapshots
 }) => {
   const [activeTab, setActiveTab] = useState<'appearance' | 'editor' | 'access' | 'project'>('appearance');
   const [saveAsName, setSaveAsName] = useState('');
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  useEffect(() => {
-    const handler = (e: any) => {
-        e.preventDefault();
-        setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstallClick = () => {
-      if (deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult: any) => {
-              setDeferredPrompt(null);
-          });
-      }
-  };
-  
   if (!isOpen) return null;
 
   const TabButton = ({ id, label, icon: Icon }: any) => (
@@ -61,13 +46,11 @@ const Settings: React.FC<SettingsProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-end md:items-center">
-        {/* Backdrop */}
         <div 
             className="absolute inset-0 bg-black/60 animate-fade-in" 
             onClick={onClose}
         />
         
-        {/* Container - Bottom Sheet on Mobile, Modal on Desktop */}
         <div className={`
             relative w-full bg-surface shadow-2xl overflow-hidden flex flex-col
             transition-all border border-border
@@ -75,14 +58,12 @@ const Settings: React.FC<SettingsProps> = ({
             md:h-auto md:max-h-[85vh] md:max-w-3xl md:rounded-3xl md:animate-in md:zoom-in-95
         `}>
             
-            {/* Mobile Drag Handle */}
             {isMobile && (
                 <div className="w-full flex justify-center pt-3 pb-1" onClick={onClose}>
                     <div className="w-12 h-1.5 bg-border rounded-full opacity-50" />
                 </div>
             )}
 
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface-highlight">
                 <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gradient-to-br from-primary to-accent rounded-xl text-primary-fg shadow-lg shadow-primary/20">
@@ -100,7 +81,6 @@ const Settings: React.FC<SettingsProps> = ({
                 )}
             </div>
 
-            {/* Tabs */}
             <div className="flex border-b border-border bg-surface">
                 <TabButton id="appearance" label="Appearance" icon={Palette} />
                 <TabButton id="editor" label="Editor" icon={FileCode} />
@@ -108,13 +88,11 @@ const Settings: React.FC<SettingsProps> = ({
                 <TabButton id="project" label="Project" icon={Save} />
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
                 
                 {/* APPEARANCE TAB */}
                 {activeTab === 'appearance' && (
                     <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                        {/* Display Mode */}
                         <section>
                             <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Display Mode</h3>
                             <div className="flex rounded-xl bg-surface-highlight p-1 border border-border">
@@ -137,7 +115,6 @@ const Settings: React.FC<SettingsProps> = ({
                             </div>
                         </section>
 
-                        {/* Theme Presets */}
                         <section>
                             <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Theme Preset</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -159,7 +136,6 @@ const Settings: React.FC<SettingsProps> = ({
                             </div>
                         </section>
 
-                        {/* Typography Settings */}
                         <section>
                             <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4 flex items-center">
                                 <Type size={14} className="mr-2" /> Typography
@@ -197,7 +173,17 @@ const Settings: React.FC<SettingsProps> = ({
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-sm font-medium">Font Size</span>
-                                        <span className="text-xs text-text-muted font-mono bg-surface px-2 py-1 rounded border border-border">{settings.editorFontSize}px</span>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-xs text-text-muted">px</span>
+                                            <input 
+                                                type="number"
+                                                min="10"
+                                                max="64"
+                                                value={settings.editorFontSize}
+                                                onChange={(e) => onUpdateSettings({...settings, editorFontSize: Math.max(10, Math.min(64, parseInt(e.target.value) || 14))})}
+                                                className="w-16 bg-surface border border-border rounded-md px-2 py-1 text-sm text-center focus:ring-1 focus:ring-primary outline-none font-mono"
+                                            />
+                                        </div>
                                     </div>
                                     <input 
                                        type="range" 
@@ -212,8 +198,7 @@ const Settings: React.FC<SettingsProps> = ({
                             </div>
                         </section>
 
-                         {/* Console Appearance */}
-                         <section className="bg-surface-highlight rounded-2xl p-5 border border-border">
+                        <section className="bg-surface-highlight rounded-2xl p-5 border border-border">
                              <h3 className="text-sm font-semibold mb-4 flex items-center">
                                 <Terminal size={16} className="mr-2 text-accent" />
                                 Console Customization
@@ -234,15 +219,81 @@ const Settings: React.FC<SettingsProps> = ({
                                     />
                                 </div>
                              </div>
-                             <div className="flex items-center space-x-3 p-2 rounded-lg bg-surface border border-border">
-                                 <label className="text-sm pl-2 whitespace-nowrap">Prompt Symbol</label>
-                                 <input 
-                                    type="text" 
-                                    maxLength={3}
-                                    className="w-full bg-transparent text-right font-mono outline-none border-b border-transparent focus:border-primary transition-colors text-accent font-bold"
-                                    value={settings.consolePromptSymbol}
-                                    onChange={e => onUpdateSettings({...settings, consolePromptSymbol: e.target.value})}
-                                 />
+                             
+                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="flex items-center space-x-3 p-2 rounded-lg bg-surface border border-border">
+                                     <label className="text-sm pl-2 whitespace-nowrap">Prompt</label>
+                                     <input 
+                                        type="text" 
+                                        maxLength={3}
+                                        className="w-full bg-transparent text-right font-mono outline-none border-b border-transparent focus:border-primary transition-colors text-accent font-bold"
+                                        value={settings.consolePromptSymbol}
+                                        onChange={e => onUpdateSettings({...settings, consolePromptSymbol: e.target.value})}
+                                     />
+                                 </div>
+                                 <div className="flex items-center space-x-3 p-2 rounded-lg bg-surface border border-border">
+                                    <label className="text-sm pl-2 whitespace-nowrap">Font</label>
+                                    <select 
+                                        value={settings.consoleFontFamily || settings.editorFontFamily} 
+                                        onChange={(e) => onUpdateSettings({...settings, consoleFontFamily: e.target.value})}
+                                        className="w-full bg-transparent text-right text-xs outline-none"
+                                    >
+                                        {EDITOR_FONTS.map((font, idx) => (
+                                            <option key={idx} value={font.value}>{font.name}</option>
+                                        ))}
+                                    </select>
+                                 </div>
+                             </div>
+                        </section>
+
+                        <section className="bg-surface-highlight rounded-2xl p-5 border border-border">
+                             <h3 className="text-sm font-semibold mb-4 flex items-center">
+                                <FileCode size={16} className="mr-2 text-accent" />
+                                Editor Colors Overrides
+                             </h3>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="flex items-center justify-between p-2 rounded-lg bg-surface border border-border">
+                                    <label className="text-sm pl-2">Background</label>
+                                    <input type="color" className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent" 
+                                        value={settings.editorBackgroundColor || '#1e1e1e'} 
+                                        onChange={e => onUpdateSettings({...settings, editorBackgroundColor: e.target.value})}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between p-2 rounded-lg bg-surface border border-border">
+                                    <label className="text-sm pl-2">Text</label>
+                                    <input type="color" className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent" 
+                                        value={settings.editorTextColor || '#d4d4d4'} 
+                                        onChange={e => onUpdateSettings({...settings, editorTextColor: e.target.value})}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between p-2 rounded-lg bg-surface border border-border">
+                                    <label className="text-sm pl-2">Cursor</label>
+                                    <input type="color" className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent" 
+                                        value={settings.editorCursorColor || '#ffffff'} 
+                                        onChange={e => onUpdateSettings({...settings, editorCursorColor: e.target.value})}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between p-2 rounded-lg bg-surface border border-border">
+                                    <label className="text-sm pl-2">Selection</label>
+                                    <input type="color" className="w-8 h-8 rounded-md cursor-pointer border-0 bg-transparent" 
+                                        value={settings.editorSelectionColor || '#264f78'} 
+                                        onChange={e => onUpdateSettings({...settings, editorSelectionColor: e.target.value})}
+                                    />
+                                </div>
+                             </div>
+                             <div className="mt-4 flex justify-end">
+                                 <button 
+                                    onClick={() => onUpdateSettings({
+                                        ...settings, 
+                                        editorBackgroundColor: undefined,
+                                        editorTextColor: undefined,
+                                        editorCursorColor: undefined,
+                                        editorSelectionColor: undefined
+                                    })}
+                                    className="text-xs text-text-muted hover:text-red-500 underline"
+                                 >
+                                     Reset Editor Colors
+                                 </button>
                              </div>
                         </section>
                     </div>
@@ -275,37 +326,35 @@ const Settings: React.FC<SettingsProps> = ({
                                     </label>
                                 </div>
                                 
-                                {settings.enableIntelliSense && (
-                                    <div className="pl-12 space-y-3 animate-in fade-in slide-in-from-top-2">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-text-muted">Suggest on Trigger Characters</span>
-                                            <input 
-                                                type="checkbox" 
-                                                checked={settings.suggestOnTriggerCharacters} 
-                                                onChange={e => onUpdateSettings({...settings, suggestOnTriggerCharacters: e.target.checked})}
-                                                className="accent-primary w-4 h-4 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-text-muted">Accept Suggestion on Enter</span>
-                                            <input 
-                                                type="checkbox" 
-                                                checked={settings.acceptSuggestionOnEnter} 
-                                                onChange={e => onUpdateSettings({...settings, acceptSuggestionOnEnter: e.target.checked})}
-                                                className="accent-primary w-4 h-4 rounded cursor-pointer"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-text-muted">Word Based Suggestions</span>
-                                            <input 
-                                                type="checkbox" 
-                                                checked={settings.wordBasedSuggestions} 
-                                                onChange={e => onUpdateSettings({...settings, wordBasedSuggestions: e.target.checked})}
-                                                className="accent-primary w-4 h-4 rounded cursor-pointer"
-                                            />
-                                        </div>
+                                <div className={`pl-12 space-y-3 transition-all duration-300 ${settings.enableIntelliSense ? 'opacity-100 max-h-40' : 'opacity-50 max-h-0 overflow-hidden'}`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-text-muted">Suggest on Trigger Characters</span>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={settings.suggestOnTriggerCharacters} 
+                                            onChange={e => onUpdateSettings({...settings, suggestOnTriggerCharacters: e.target.checked})}
+                                            className="accent-primary w-4 h-4 rounded cursor-pointer"
+                                        />
                                     </div>
-                                )}
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-text-muted">Accept Suggestion on Enter</span>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={settings.acceptSuggestionOnEnter} 
+                                            onChange={e => onUpdateSettings({...settings, acceptSuggestionOnEnter: e.target.checked})}
+                                            className="accent-primary w-4 h-4 rounded cursor-pointer"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-text-muted">Word Based Suggestions</span>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={settings.wordBasedSuggestions} 
+                                            onChange={e => onUpdateSettings({...settings, wordBasedSuggestions: e.target.checked})}
+                                            className="accent-primary w-4 h-4 rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
 
                                 <div className="w-full h-px bg-border" />
 
@@ -369,7 +418,6 @@ const Settings: React.FC<SettingsProps> = ({
                                 <Accessibility size={14} className="mr-2" /> Visual Aids
                             </h3>
                             <div className="space-y-4">
-                                {/* High Contrast */}
                                 <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-surface hover:bg-surface-highlight transition-colors">
                                     <div className="flex items-center space-x-4">
                                         <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><Eye size={20} /></div>
@@ -384,7 +432,6 @@ const Settings: React.FC<SettingsProps> = ({
                                     </label>
                                 </div>
 
-                                {/* Reduced Motion */}
                                 <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-surface hover:bg-surface-highlight transition-colors">
                                     <div className="flex items-center space-x-4">
                                         <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><Zap size={20} /></div>
@@ -399,7 +446,6 @@ const Settings: React.FC<SettingsProps> = ({
                                     </label>
                                 </div>
 
-                                {/* Simplified Mode */}
                                 <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-surface hover:bg-surface-highlight transition-colors">
                                     <div className="flex items-center space-x-4">
                                         <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><Layers size={20} /></div>
@@ -424,7 +470,7 @@ const Settings: React.FC<SettingsProps> = ({
                                 {settings.keybindings.map((kb, idx) => (
                                     <div key={idx} className="flex justify-between items-center p-3 border-b border-border last:border-0 hover:bg-surface transition-colors">
                                         <span className="text-sm font-medium">{kb.label}</span>
-                                        <kbd className="px-2 py-1 bg-surface border border-border rounded text-xs font-mono text-text-muted shadow-sm">
+                                        <kbd className="px-2 py-1 bg-surface border border-border rounded-md text-xs font-mono text-text-muted shadow-sm">
                                             {kb.key}
                                         </kbd>
                                     </div>
@@ -433,26 +479,56 @@ const Settings: React.FC<SettingsProps> = ({
                         </section>
                     </div>
                 )}
-
-                {/* PROJECT TAB */}
+                {/* ... existing project tab ... */}
                 {activeTab === 'project' && (
                     <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                        {/* Install PWA */}
-                        {deferredPrompt && (
-                            <section className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-bold text-primary">Install TriLan App</h3>
-                                    <p className="text-xs text-text-muted">Work offline and get full screen experience.</p>
-                                </div>
+                         {/* Snapshots */}
+                         <section className="bg-surface-highlight rounded-xl p-4 border border-border">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold flex items-center">
+                                    <History size={16} className="mr-2 text-accent" />
+                                    Snapshots
+                                </h3>
                                 <button 
-                                    onClick={handleInstallClick}
-                                    className="bg-primary text-primary-fg px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20"
+                                    onClick={onSaveSnapshot}
+                                    className="text-xs bg-primary text-primary-fg px-3 py-1.5 rounded-lg font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
                                 >
-                                    <Download size={16} className="inline mr-1" /> Install
+                                    + Save Snapshot
                                 </button>
-                            </section>
-                        )}
-                        
+                            </div>
+                            
+                            <div className="space-y-2">
+                                {snapshots.length === 0 ? (
+                                    <p className="text-xs text-text-muted text-center py-4">No snapshots saved yet.</p>
+                                ) : (
+                                    snapshots.map(snap => (
+                                        <div key={snap.id} className="flex items-center justify-between p-2 bg-surface rounded-lg border border-border">
+                                            <div>
+                                                <div className="text-xs font-bold text-text">{new Date(snap.timestamp).toLocaleString()}</div>
+                                                <div className="text-[10px] text-text-muted">{snap.project.files.length} files</div>
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <button 
+                                                    onClick={() => { if(confirm('Restore this snapshot? Current unsaved changes will be lost.')) onRestoreSnapshot(snap); }}
+                                                    className="p-1.5 hover:bg-surface-highlight text-blue-500 rounded-md transition-colors"
+                                                    title="Restore"
+                                                >
+                                                    <RotateCcw size={14} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => onDeleteSnapshot(snap.id)}
+                                                    className="p-1.5 hover:bg-surface-highlight text-red-500 rounded-md transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </section>
+
                         {/* Save As */}
                         <section className="bg-surface-highlight rounded-xl p-4 border border-border">
                             <h3 className="text-sm font-semibold mb-4 flex items-center">

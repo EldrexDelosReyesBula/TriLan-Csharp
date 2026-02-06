@@ -26,21 +26,54 @@ const TEMPLATES = [
 const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme, settings, compilationMessages = [], onAddToNotes }) => {
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
+  const settingsRef = useRef<AppSettings>(settings);
   const [copied, setCopied] = useState(false);
   const [isTemplateOpen, setIsTemplateOpen] = useState(false);
   const [hasSelection, setHasSelection] = useState(false);
+  
+  // Local state for debounced updates to improve mobile performance
+  const [localCode, setLocalCode] = useState(code);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+      // Sync local state when prop changes from external source (e.g. file switch)
+      if (code !== localCode) {
+         setLocalCode(code);
+         if (editorRef.current && editorRef.current.getValue() !== code) {
+             editorRef.current.setValue(code);
+         }
+      }
+  }, [code]);
+
+  useEffect(() => {
+      settingsRef.current = settings;
+      // Re-apply theme when settings change (in case of custom colors)
+      if (monacoRef.current) {
+          updateMonacoTheme(monacoRef.current, theme);
+      }
+  }, [settings, theme]);
+
+  const handleEditorChange = (value: string | undefined) => {
+      const newVal = value || '';
+      setLocalCode(newVal);
+      
+      if (debounceRef.current) {
+          clearTimeout(debounceRef.current);
+      }
+      
+      debounceRef.current = setTimeout(() => {
+          onChange(newVal);
+      }, 500); // 500ms debounce
+  };
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-
-    // Define custom themes for Monaco
     updateMonacoTheme(monaco, theme);
 
-    // Register Snippet Completions for C#
     monaco.languages.registerCompletionItemProvider('csharp', {
         provideCompletionItems: (model, position) => {
-            if (!settings.enableIntelliSense) return { suggestions: [] };
+            if (!settingsRef.current.enableIntelliSense) return { suggestions: [] };
 
             const suggestions = [
                 {
@@ -76,7 +109,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
         }
     });
 
-    // Listen for selection changes to toggle "Add to Notes" visibility
     editor.onDidChangeCursorSelection((e) => {
         const selection = editor.getSelection();
         setHasSelection(selection && !selection.isEmpty());
@@ -85,27 +117,28 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
 
   const updateMonacoTheme = (monaco: any, currentTheme: Theme) => {
      if (!monaco) return;
+     
+     // Use settings overrides if available, else fall back to theme colors
+     const bg = settingsRef.current.editorBackgroundColor || currentTheme.colors.surface;
+     const fg = settingsRef.current.editorTextColor || currentTheme.colors.text;
+     const cursor = settingsRef.current.editorCursorColor || currentTheme.colors.accent;
+     const selection = settingsRef.current.editorSelectionColor || currentTheme.colors.surfaceHighlight;
+
      monaco.editor.defineTheme('custom-theme', {
       base: currentTheme.type === 'dark' ? 'vs-dark' : 'vs',
       inherit: true,
       rules: [],
       colors: {
-        'editor.background': currentTheme.colors.surface, 
-        'editor.foreground': currentTheme.colors.text,
+        'editor.background': bg, 
+        'editor.foreground': fg,
         'editorLineNumber.foreground': currentTheme.colors.textMuted,
-        'editor.selectionBackground': currentTheme.colors.surfaceHighlight,
+        'editor.selectionBackground': selection,
         'editor.lineHighlightBackground': currentTheme.colors.surfaceHighlight,
-        'editorCursor.foreground': currentTheme.colors.accent,
+        'editorCursor.foreground': cursor,
       },
     });
     monaco.editor.setTheme('custom-theme');
   };
-
-  useEffect(() => {
-      if (monacoRef.current) {
-          updateMonacoTheme(monacoRef.current, theme);
-      }
-  }, [theme]);
 
   useEffect(() => {
       if (editorRef.current && monacoRef.current) {
@@ -118,7 +151,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
                     startColumn: 1,
                     endLineNumber: m.line!,
                     endColumn: 1000,
-                    message: m.content,
+                    message: m.content + (m.suggestion ? `\nSuggestion: ${m.suggestion}` : ''),
                     severity: m.type === 'error' 
                         ? monacoRef.current.MarkerSeverity.Error 
                         : monacoRef.current.MarkerSeverity.Warning
@@ -205,7 +238,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
     }
   };
 
-  // Helper for touch/click props
   const actionProps = (handler: any) => ({
       onClick: handler,
       onTouchEnd: handler
@@ -217,7 +249,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
       {/* Floating Toolbar */}
       <div className="absolute top-2 right-4 z-20 flex flex-wrap items-center justify-end gap-1 p-1 rounded-lg bg-surface border border-border shadow-md opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto">
         
-        {/* Selection Specific Action */}
         {hasSelection && onAddToNotes && (
             <button {...actionProps(handleAddToNotesAction)} className="p-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition-colors flex items-center space-x-1" title="Add Selection to Notes">
                 <StickyNote size={14} />
@@ -237,7 +268,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
             <AlignLeft size={14} />
         </button>
         
-        {/* Mobile Helpers */}
         <button {...actionProps(handleSelectAll)} className="p-1.5 hover:bg-surface-highlight text-text-muted hover:text-text rounded-md transition-colors sm:hidden" title="Select All">
             <CheckSquare size={14} />
         </button>
@@ -245,7 +275,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
             <Clipboard size={14} />
         </button>
 
-        {/* Templates Dropdown */}
         <div className="relative">
              <button 
                 onClick={() => setIsTemplateOpen(!isTemplateOpen)}
@@ -284,8 +313,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
             height="100%"
             defaultLanguage="csharp"
             language={language === 'csharp' ? 'csharp' : 'plaintext'}
-            value={code}
-            onChange={onChange}
+            value={localCode}
+            onChange={handleEditorChange}
             theme="custom-theme"
             onMount={handleEditorDidMount}
             options={{
@@ -302,7 +331,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, language, onChange, theme
                 formatOnType: settings.formatOnType,
                 formatOnPaste: settings.formatOnPaste,
                 
-                // IntelliSense Configuration
                 quickSuggestions: settings.enableIntelliSense,
                 snippetSuggestions: settings.enableIntelliSense ? 'inline' : 'none',
                 suggestOnTriggerCharacters: settings.enableIntelliSense && settings.suggestOnTriggerCharacters,
