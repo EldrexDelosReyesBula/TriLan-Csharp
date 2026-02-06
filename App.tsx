@@ -483,7 +483,11 @@ const App: React.FC = () => {
         settings={settings} 
         onUpdateSettings={setSettings} 
         project={project}
-        onSaveAs={(name) => { const np = { ...project, id: crypto.randomUUID(), name }; setProject(np); }} 
+        onSaveAs={(name) => { 
+            const newProject = { ...project, id: crypto.randomUUID(), name };
+            setProject(newProject);
+            exportProjectToZip(newProject);
+        }} 
         isMobile={window.innerWidth < 768}
         snapshots={snapshots}
         onSaveSnapshot={handleSaveSnapshot}
