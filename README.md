@@ -5,155 +5,314 @@
 <h1 align="center">TriLan C# (Beta)</h1>  
 
 <p align="center">  
-  An educational C# playground with a VS Code–like experience, optimized for learning, experimentation, and mobile use.  
+  A modern, browser-based C# playground with VS Code–like experience, optimized for learning and experimentation.  
 </p>  
 
-<p align="center">  
-  <a href="https://trilan-c.landecs.org">🌐 Main Web App</a> |  
-  <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor">📝 Report / Feedback</a>  
-</p>  
+<p align="center">
+  <a href="https://trilan-c.landecs.org"><strong>🌐 Live Demo</strong></a> •
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki"><strong>📚 Documentation</strong></a> •
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp/issues"><strong>🐛 Report Bug</strong></a> •
+</p>
 
-<p align="center">  
-  <a href="https://www.landecs.org/docs/donation">  
-    <img src="https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge" alt="Donate">  
-  </a>  
-  <a href="LICENSE">  
-    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">  
-  </a>  
-  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp">  
-    <img src="https://img.shields.io/badge/GitHub-TriLan%20C%23-black?style=for-the-badge" alt="GitHub Repo">  
-  </a>  
-  <a href="https://www.facebook.com/share/16Zpbt8Sfb/">  
-    <img src="https://eldrex.landecs.org/landecs.png" width="24" alt="LanDecs Logo"> Facebook  
-  </a>  
-</p>  
+<p align="center">
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp/stargazers">
+    <img src="https://img.shields.io/github/stars/EldrexDelosReyesBula/TriLan-Csharp?style=for-the-badge&logo=github&color=yellow" alt="GitHub stars">
+  </a>
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp/issues">
+    <img src="https://img.shields.io/github/issues/EldrexDelosReyesBula/TriLan-Csharp?style=for-the-badge&logo=github" alt="GitHub issues">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
+  </a>
+  <a href="https://trilan-c.landecs.org">
+    <img src="https://img.shields.io/badge/Status-Beta-orange?style=for-the-badge" alt="Beta Status">
+  </a>
+</p>
+
+<div align="center">
+
+**A Web-Based C# IDE That Runs Entirely in Your Browser**
+
+[Try Now](https://trilan-c.landecs.org)  • [Contribute](CONTRIBUTING.md)
+
+</div>
 
 ---
 
-## Overview
+## ✨ **Features**
 
-**TriLan C#** is a beta-stage, web-based C# environment that allows users to write, run, and test code with a modern, VS Code–like interface.  
+### **🎯 Learning-Focused**
+- **Beginner-Friendly Interface** – Clean, intuitive design perfect for students
+- **Interactive Tutorials** – Built-in examples and learning exercises
+- **Instant Feedback** – Real-time compilation and error reporting
+- **No Setup Required** – Start coding immediately in your browser
 
-It is fully functional but still in **active development**, focusing on:  
+### **💻 Development Experience**
+- **VS Code-like Editor** – Familiar interface with syntax highlighting
+- **IntelliSense Support** – Smart code completion and suggestions
+- **Multiple Themes** – Customizable light/dark modes
+- **Responsive Design** – Works flawlessly on desktop and mobile
+- **Project Management** – Save, load, and organize your code projects
 
-- Clean editor with syntax highlighting and IntelliSense-like code suggestions  
-- Support for free APIs and libraries for learning and experimentation  
-- Customizable UI for themes, fonts, and layout preferences  
-- Optimized for desktop and mobile browsing  
-
-TriLan C# is ideal for students, educators, and developers looking for a simple yet powerful coding environment online.  
-
----
-
-## Key Features
-
-- 🖥 **VS Code–like Editor**: Syntax highlighting, IntelliSense-style suggestions, and smart auto-completion  
-- 🌐 **Web-based**: No installation required; runs entirely in the browser  
-- 📚 **Free Libraries & APIs**: Integrated open-source tools for C# development  
-- 🎨 **UI Customization**: Adjust themes, fonts, and editor layout  
-- 📱 **Mobile Optimization**: Fully functional on smartphones and tablets  
-- ⚡ **Real-time Execution**: Instant output and interactive console  
+### **⚡ Performance & Reliability**
+- **Fast Compilation** – Near-instant code execution
+- **Offline Capable** – Progressive Web App (PWA) support
+- **Privacy First** – Code stays in your browser
+- **No Server Dependency** – All processing happens client-side
 
 ---
 
-## Screenshots
+## 🚀 **Quick Start**
 
-### 1. Main Editor Interface
+### **Online (Recommended)**
+1. Visit **[https://trilan-c.landecs.org](https://trilan-c.landecs.org)**
+2. Start coding immediately – no signup required!
+3. Explore examples from the sidebar
 
-**Description:**  
-This screenshot shows the TriLan C# web-based IDE with a sleek, modern, dark-themed design optimized for learning and development. The layout is organized into three primary sections: Sidebar, Editor, and Console, giving users a full coding experience similar to VS Code.  
+### **Local Development**
+```bash
+# Clone the repository
+git clone https://github.com/EldrexDelosReyesBula/TriLan-Csharp.git
+cd TriLan-Csharp
 
-![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)  
+# Install dependencies
+npm install
 
-### 2. Settings & Appearance Panel
+# Start development server
+npm run dev
 
-**Description:**  
-This screenshot highlights the **Settings panel** of the **TriLan C# web IDE**, focusing on the **Appearance** tab. Users can customize the display mode with options like **Light**, **System**, and **Dark**. The panel also offers a selection of **theme presets** such as **Cosmic Orange**, **Ocean Blue**, and **Monochrome**. Developers can adjust **typography settings**, including the **editor font**, **UI font**, and **font size**. The layout is clean and intuitive, designed to help users personalize their coding environment for both comfort and productivity.
+# Open http://localhost:5173 in your browser
+```
 
+---
+
+## 📸 **Screenshots**
+
+### **Editor Interface**
+![TriLan C# Editor](https://eldrex.landecs.org/squad/trilan-csharp-editor.png)
+
+**Features Visible:**
+- Modern, clean editor with syntax highlighting
+- Sidebar navigation for projects and examples
+- Real-time console output
+- Mobile-responsive layout
+
+### **Customization Panel**
 ![Settings & Appearance Panel](https://eldrex.landecs.org/squad/trilan-customization.png)
 
----
-
-## How It Works
-
-1. Write or edit C# code in the browser-based editor  
-2. Run the code instantly using the built-in compiler  
-3. View outputs and errors in the console  
-4. Experiment, learn, and iterate in real-time  
+**Customization Options:**
+- **Theme Selection**: Light, Dark, or System preference
+- **Theme Presets**: Cosmic Orange, Ocean Blue, Monochrome
+- **Typography**: Adjust editor and UI fonts
+- **Layout Preferences**: Tailor the IDE to your workflow
 
 ---
 
-## Supported Libraries & APIs
+## 📚 **Usage Examples**
 
-TriLan C# uses **free and open-source libraries** for:  
+### **1. Hello World**
+```csharp
+using System;
 
-- Syntax highlighting  
-- Auto-completion and IntelliSense-like support  
-- Code parsing and compilation  
-- Mobile and desktop responsive UI  
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Hello, TriLan C#!");
+        Console.WriteLine($"Current time: {DateTime.Now}");
+    }
+}
+```
 
----
+### **2. Simple Calculator**
+```csharp
+using System;
 
-## Feedback & Contributions
+class Calculator
+{
+    static void Main()
+    {
+        Console.Write("Enter first number: ");
+        double num1 = Convert.ToDouble(Console.ReadLine());
+        
+        Console.Write("Enter operation (+, -, *, /): ");
+        char operation = Console.ReadKey().KeyChar;
+        Console.WriteLine();
+        
+        Console.Write("Enter second number: ");
+        double num2 = Convert.ToDouble(Console.ReadLine());
+        
+        double result = operation switch
+        {
+            '+' => num1 + num2,
+            '-' => num1 - num2,
+            '*' => num1 * num2,
+            '/' => num2 != 0 ? num1 / num2 : throw new DivideByZeroException(),
+            _ => throw new InvalidOperationException("Invalid operation")
+        };
+        
+        Console.WriteLine($"Result: {result}");
+    }
+}
+```
 
-**Help us improve TriLan C# by sharing your feedback or reporting issues:**  
-
-- Report bugs or errors: [📝 TriLan C# Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform?usp=publish-editor)  
-- Suggest UI or feature improvements via the web app  
-- Star and contribute on GitHub: [⭐ TriLan C# Repository](https://github.com/EldrexDelosReyesBula/TriLan-Csharp)  
-- Connect with us on **Facebook**: [📘 LanDecs Page](https://www.facebook.com/share/16Zpbt8Sfb/)  
-
-Your contributions help improve the learning experience, stability, and features of the platform.  
-
----
-
-## Releases
-
-Stay updated with the latest versions, bug fixes, and improvements:
-
-- **NEW UPDATE** – [View Release on GitHub](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/releases/tag/NEW-UPDATE)
-
-Check the GitHub releases page for full changelogs and version history.  
-
----
-
-## Donation
-
-Support development of **TriLan C#** and the **LanDecs ecosystem**:  
-
-[![Donate](https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge)](https://www.landecs.org/docs/donation)  
-
-Donations help maintain servers, improve features, and expand learning resources.  
-
----
-
-## Roadmap
-
-- Enhanced IntelliSense and code suggestions  
-- Improved mobile performance and responsiveness  
-- Theme and UI customization enhancements  
-- Performance optimizations and advanced error reporting  
-- Improved code execution engine:  
-  - Handles large or multiple executions without limits  
-  - Enhanced error detection and clear feedback for runtime and compile-time issues  
-  - Better management of input/output and interactive programs  
-
----
-
-## License
-
-TriLan C# is licensed under the **MIT License**, making it free to use, modify, and distribute.  
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)  
+### **3. Learning Exercises Included**
+- Fibonacci sequence generator
+- Prime number checker
+- Basic data structures
+- Algorithm implementations
+- Object-oriented programming examples
 
 ---
 
-## Learn More
+## 🏗️ **Project Structure**
 
-🌐 Main Web App: [https://trilan-c.landecs.org](https://trilan-c.landecs.org)  
+```
+TriLan-Csharp/
+├── components/           # React components
+│   ├── Editor.tsx       # Code editor with Monaco
+│   ├── Console.tsx      # Output display
+│   ├── Sidebar.tsx      # Navigation and projects
+│   ├── Settings.tsx     # User preferences
+│   └── ...              # Other UI components
+├── services/            # Business logic
+│   ├── mockCompiler.ts  # Code execution engine
+│   └── zipService.ts    # Project import/export
+├── public/              # Static assets
+└── ...                  # Configuration files
+```
 
-🏢 Built by **LanDecs**  
+---
 
-<p align="center">  
-  <i>TriLan C# is designed for learning, experimentation, and a smooth coding experience on any device.</i>  
+## 🛠️ **Built With**
+
+- **[React](https://reactjs.org/)** – UI framework
+- **[TypeScript](https://www.typescriptlang.org/)** – Type safety
+- **[Monaco Editor](https://microsoft.github.io/monaco-editor/)** – VS Code's editor component
+- **[Vite](https://vitejs.dev/)** – Build tool and dev server
+- **[PWA](https://web.dev/progressive-web-apps/)** – Offline capabilities
+- **[CSS Modules](https://github.com/css-modules/css-modules)** – Scoped styling
+
+---
+
+## 🤝 **Contributing**
+
+We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### **Getting Started with Contribution**
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch
+4. **Make** your changes
+5. **Test** thoroughly
+6. **Submit** a Pull Request
+
+See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+### **Good First Issues**
+Looking for where to start? Check issues labeled:
+- [`good-first-issue`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/good-first-issue)
+- [`help-wanted`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/help-wanted)
+- [`documentation`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/documentation)
+
+---
+
+## 🐛 **Reporting Issues**
+
+Found a bug or have a feature request? We'd love to hear from you!
+
+### **Bug Reports**
+Please include:
+1. **Description** of the issue
+2. **Steps** to reproduce
+3. **Expected** vs **Actual** behavior
+4. **Browser/Device** information
+5. **Screenshots** if applicable
+
+### **Feedback & Suggestions**
+- Use our [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform)
+- Join [GitHub Discussions](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/discussions)
+- Create an [Issue](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/issues)
+
+---
+
+## ❤️ **Support the Project**
+
+### **Star the Repository**
+If you find TriLan C# useful, please consider giving it a star! ⭐
+
+### **Spread the Word**
+Share TriLan C# with fellow learners, educators, and developers!
+
+### **Financial Support**
+Help us keep TriLan C# free and accessible:
+
+[![Donate](https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge)](https://www.landecs.org/docs/donation)
+
+Your support helps with:
+- Server maintenance and hosting
+- Feature development
+- Documentation improvements
+- Community outreach
+
+---
+
+## 📞 **Connect With Us**
+
+- **Website**: [Landecs.org](https://www.landecs.org)
+- **Facebook**: [LanDecs Page](https://www.facebook.com/share/16Zpbt8Sfb/)
+- **GitHub**: [@EldrexDelosReyesBula](https://github.com/EldrexDelosReyesBula)
+- **Email**: [Contact via Website](https://www.landecs.org/contact)
+
+---
+
+## 📄 **License**
+
+TriLan C# is open-source software licensed under the **MIT License**.
+
+```
+MIT License
+
+Copyright (c) 2024 LanDecs
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 🙏 **Acknowledgments**
+
+Special thanks to:
+
+- **Jasmin Tegio** – For inspiring beginner-focused educational tools
+- **Ara Bella Rivera** – For motivating our mobile-first approach
+- **All Contributors** – For making TriLan C# better every day
+- **The Open Source Community** – For the amazing tools we build upon
+
+---
+
+<p align="center">
+  <i>TriLan C# – Making C# education accessible to everyone, everywhere.</i>
+</p>
+
+<p align="center">
+  <a href="https://trilan-c.landecs.org">🌐 Try It Now</a> •
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp">⭐ Star on GitHub</a> •
+  <a href="https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki">📖 Read Docs</a>
 </p>
