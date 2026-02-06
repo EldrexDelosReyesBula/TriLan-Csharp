@@ -565,7 +565,7 @@ Special thanks to all our contributors! Your efforts make TriLan C# better for e
 
 <div align="center">
 
-*Last Updated: $(Get-Date -Format "MMMM dd, yyyy")* 
+*Last Updated: February 6, 2026* 
 *TriLan C# Contribution Guidelines v1.0*
 
 </div>
