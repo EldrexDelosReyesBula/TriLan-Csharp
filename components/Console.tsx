@@ -55,7 +55,7 @@ const Console: React.FC<ConsoleProps> = ({
   };
 
   const containerClass = isMaximized 
-    ? 'fixed inset-0 z-50 h-screen w-screen' 
+    ? 'absolute inset-0 z-30 h-full w-full' 
     : `w-full transition-all duration-300 ease-in-out border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)] ${isOpen ? 'h-64' : 'h-10'}`;
 
   const customStyle = {

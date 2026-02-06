@@ -533,7 +533,7 @@ const Settings: React.FC<SettingsProps> = ({
                         <section className="bg-surface-highlight rounded-xl p-4 border border-border">
                             <h3 className="text-sm font-semibold mb-4 flex items-center">
                                 <Save size={16} className="mr-2 text-accent" />
-                                Save Copy
+                                Save & Export
                             </h3>
                             <div className="flex items-center space-x-2">
                                 <input 
@@ -548,7 +548,7 @@ const Settings: React.FC<SettingsProps> = ({
                                     disabled={!saveAsName}
                                     className="bg-surface-highlight border border-border text-text px-4 py-2 rounded-lg text-sm font-medium hover:bg-border transition-colors disabled:opacity-50"
                                 >
-                                    Save As
+                                    Save As ZIP
                                 </button>
                             </div>
                         </section>
