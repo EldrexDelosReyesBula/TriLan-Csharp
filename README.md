@@ -33,7 +33,7 @@
 
 **A Web-Based C# IDE That Runs Entirely in Your Browser**
 
-[Try Now](https://trilan-c.landecs.org)  • [Contribute](CONTRIBUTING.md)
+[Try Now](https://trilan-c.landecs.org) • [Contribute](CONTRIBUTING.md)
 
 </div>
 
@@ -108,63 +108,6 @@ npm run dev
 
 ---
 
-## 📚 **Usage Examples**
-
-### **1. Hello World**
-```csharp
-using System;
-
-class Program
-{
-    static void Main()
-    {
-        Console.WriteLine("Hello, TriLan C#!");
-        Console.WriteLine($"Current time: {DateTime.Now}");
-    }
-}
-```
-
-### **2. Simple Calculator**
-```csharp
-using System;
-
-class Calculator
-{
-    static void Main()
-    {
-        Console.Write("Enter first number: ");
-        double num1 = Convert.ToDouble(Console.ReadLine());
-        
-        Console.Write("Enter operation (+, -, *, /): ");
-        char operation = Console.ReadKey().KeyChar;
-        Console.WriteLine();
-        
-        Console.Write("Enter second number: ");
-        double num2 = Convert.ToDouble(Console.ReadLine());
-        
-        double result = operation switch
-        {
-            '+' => num1 + num2,
-            '-' => num1 - num2,
-            '*' => num1 * num2,
-            '/' => num2 != 0 ? num1 / num2 : throw new DivideByZeroException(),
-            _ => throw new InvalidOperationException("Invalid operation");
-        };
-        
-        Console.WriteLine($"Result: {result}");
-    }
-}
-```
-
-### **3. Learning Exercises Included**
-- Fibonacci sequence generator
-- Prime number checker
-- Basic data structures
-- Algorithm implementations
-- Object-oriented programming examples
-
----
-
 ## 🏗️ **Project Structure**
 
 ```
@@ -209,6 +152,12 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 
 See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
+### **Good First Issues**
+Looking for where to start? Check issues labeled:
+- [`good-first-issue`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/good-first-issue)
+- [`help-wanted`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/help-wanted)
+- [`documentation`](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/labels/documentation)
+
 ---
 
 ## 🐛 **Reporting Issues**
@@ -223,31 +172,49 @@ Please include:
 4. **Browser/Device** information
 5. **Screenshots** if applicable
 
+**Submit here:** [GitHub Issues](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/issues)
+
 ### **Feedback & Suggestions**
-- Use our [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform)
-- Join [GitHub Discussions](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/discussions)
-- Create an [Issue](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/issues)
+- **Discussion Forum:** [GitHub Discussions](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/discussions)
+- **Quick Feedback:** [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfXyr-WvHlNDZ0wqOdo-hRMTGEKnv1PVGzNK8o-1J289oUsgQ/viewform)
+
+---
+
+## 📖 **Documentation**
+
+### **User Guides**
+- **[Getting Started Guide](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/Getting-Started)** – First steps with TriLan C#
+- **[Features Overview](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/Features)** – Detailed feature explanations
+- **[FAQ](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/FAQ)** – Frequently asked questions
+- **[Keyboard Shortcuts](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/Keyboard-Shortcuts)** – Productivity tips
+
+### **Developer Documentation**
+- **[Architecture Overview](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/Architecture)** – Technical design
+- **[API Reference](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/API-Reference)** – Service layer documentation
+- **[Testing Guide](https://github.com/EldrexDelosReyesBula/TriLan-Csharp/wiki/Testing)** – Running and writing tests
 
 ---
 
 ## ❤️ **Support the Project**
 
 ### **Star the Repository**
-If you find TriLan C# useful, please consider giving it a star! ⭐
+If you find TriLan C# useful, please consider giving it a star! ⭐  
+This helps more people discover the project.
 
 ### **Spread the Word**
-Share TriLan C# with fellow learners, educators, and developers!
+Share TriLan C# with fellow learners, educators, and developers!  
+Tag us on social media with `#TriLanCSharp`
 
 ### **Financial Support**
-Help us keep TriLan C# free and accessible:
+Help us keep TriLan C# free and accessible for everyone:
 
 [![Donate](https://img.shields.io/badge/Donate-LanDecs-blue?style=for-the-badge)](https://www.landecs.org/docs/donation)
 
-Your support helps with:
-- Server maintenance and hosting
-- Feature development
-- Documentation improvements
-- Community outreach
+**Your support helps with:**
+- 🖥️ **Server maintenance and hosting**
+- 🛠️ **Feature development**
+- 📚 **Documentation improvements**
+- 🌍 **Community outreach**
 
 ---
 
@@ -292,12 +259,17 @@ SOFTWARE.
 
 ## 🙏 **Acknowledgments**
 
-Special thanks to:
-
+### **Special Thanks To:**
 - **Jasmin Tegio** – For inspiring beginner-focused educational tools
 - **Ara Bella Rivera** – For motivating our mobile-first approach
 - **All Contributors** – For making TriLan C# better every day
 - **The Open Source Community** – For the amazing tools we build upon
+
+### **Built With Thanks To:**
+- **[Monaco Editor](https://microsoft.github.io/monaco-editor/)** – Powering our code editor
+- **[Vite](https://vitejs.dev/)** – Lightning-fast build tool
+- **[React](https://reactjs.org/)** – Declarative UI framework
+- **[TypeScript](https://www.typescriptlang.org/)** – Type-safe development
 
 ---
 
