@@ -34,7 +34,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 - Publishing others' private information without permission
 - Any conduct that could reasonably be considered inappropriate
 
-**Enforcement:** Violations can be reported by contacting the project team at [your-email]. All reports will be reviewed and investigated.
+**Enforcement:** Violations can be reported by contacting the project team at landecs.org@gmail.com. All reports will be reviewed and investigated.
 
 ---
 
