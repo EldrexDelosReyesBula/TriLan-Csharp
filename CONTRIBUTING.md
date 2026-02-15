@@ -55,7 +55,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 2. **Clone Your Fork**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/TriLan-Csharp.git
+   git clone https://github.com/EldrexDelosReyesBula/TriLan-Csharp.git
    cd TriLan-Csharp
    ```
 
